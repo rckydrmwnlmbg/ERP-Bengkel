@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: erp-bengkel
+    runtime: docker
+    dockerfilePath: ./app/Dockerfile
+    dockerContext: ./app
+    plan: free
+    region: singapore
+    envVars:
+      - key: APP_NAME
+        value: "ERP Bengkel Alat Berat"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: "https://erp-bengkel.onrender.com"
+      - key: APP_KEY
+        value: "base64:6YG6xCrWI4bO2wQWxgJupu51Byfn+7ZHWDmSRccjTug="
+      - key: APP_TIMEZONE
+        value: "Asia/Jakarta"
+      - key: APP_LOCALE
+        value: "id"
+      - key: APP_FALLBACK_LOCALE
+        value: "id"
+      - key: DEMO
+        value: "true"
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: database/database.sqlite
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: ADMIN_EMAIL
+        value: "admin@example.com"
+      - key: ADMIN_PASSWORD
+        value: "password123"
