@@ -29,22 +29,28 @@ if ($dbConnection === 'sqlite') {
     putenv("DB_DATABASE={$dbPath}");
     $_ENV['DB_DATABASE'] = $dbPath;
 
-    $isNewDb = !file_exists($dbPath);
-    if ($isNewDb) {
-        @touch($dbPath);
+    // Salin database template yang sudah ter-seed jika database /tmp belum ada atau berukuran 0 byte
+    if (!file_exists($dbPath) || filesize($dbPath) === 0) {
+        $bundledDb = __DIR__ . '/../database/database.sqlite';
+        if (file_exists($bundledDb) && filesize($bundledDb) > 0) {
+            @copy($bundledDb, $dbPath);
+        } else {
+            @touch($dbPath);
+            require __DIR__ . '/../vendor/autoload.php';
+            $app = require_once __DIR__ . '/../bootstrap/app.php';
+            try {
+                $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+                $kernel->bootstrap();
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+            } catch (\Throwable $e) {
+                error_log("Database initialization error: " . $e->getMessage());
+            }
+        }
     }
 
     require __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
-
-    if ($isNewDb) {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        } catch (\Throwable $e) {
-            // Silently ignore if already migrated
-        }
-    }
 
     $app->handleRequest(\Illuminate\Http\Request::capture());
     exit;
