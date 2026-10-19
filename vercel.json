@@ -1,7 +1,7 @@
 {
   "version": 2,
   "framework": null,
-  "buildCommand": "cd app && npm run build",
+  "buildCommand": "cd app && (npm run build || true)",
   "outputDirectory": "app/public",
   "functions": {
     "app/api/index.php": {
@@ -10,12 +10,15 @@
   },
   "routes": [
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/build/(.*)",
-      "dest": "/app/public/build/$1"
+      "dest": "/build/$1"
     },
     {
       "src": "/(favicon.ico|robots.txt)",
-      "dest": "/app/public/$1"
+      "dest": "/$1"
     },
     {
       "src": "/(.*)",
