@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "app/api/index.php": {
+      "runtime": "vercel-php@0.7.3"
+    }
+  },
+  "routes": [
+    {
+      "src": "/build/(.*)",
+      "dest": "/app/public/build/$1"
+    },
+    {
+      "src": "/(favicon.ico|robots.txt)",
+      "dest": "/app/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app/api/index.php"
+    }
+  ],
+  "env": {
+    "APP_NAME": "ERP Bengkel Alat Berat",
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "APP_KEY": "base64:6YG6xCrWI4bO2wQWxgJupu51Byfn+7ZHWDmSRccjTug=",
+    "APP_TIMEZONE": "Asia/Jakarta",
+    "APP_LOCALE": "id",
+    "APP_FALLBACK_LOCALE": "id",
+    "DEMO": "true",
+    "APP_CONFIG_CACHE": "/tmp/config.php",
+    "APP_EVENTS_CACHE": "/tmp/events.php",
+    "APP_PACKAGES_CACHE": "/tmp/packages.php",
+    "APP_ROUTES_CACHE": "/tmp/routes.php",
+    "APP_SERVICES_CACHE": "/tmp/services.php",
+    "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
+    "CACHE_STORE": "array",
+    "SESSION_DRIVER": "cookie",
+    "LOG_CHANNEL": "stderr"
+  }
+}
