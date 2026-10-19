@@ -8,10 +8,21 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-    <!-- Scripts (Vite + Tailwind/Alpine CDN Fallback) -->
+    <!-- Tailwind CSS & Vite Assets -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        // Fail-safe Alpine.js: hanya dimuat jika bundle Vite belum menginisialisasi window.Alpine
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Alpine) {
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="font-sans antialiased bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900">
     
