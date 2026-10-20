@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Supplier\StoreSupplierRequest;
 use App\Http\Requests\Supplier\UpdateSupplierRequest;
 use App\Models\Supplier;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class SupplierController extends Controller
 {
+    public function __construct(
+        protected AuditService $auditService
+    ) {}
     public function index(Request $request): View
     {
         Gate::authorize('master-data.view');
@@ -43,6 +48,15 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::create($request->validated());
 
+        $this->auditService->log(
+            action: 'SUPPLIER_CREATE',
+            entityType: 'Supplier',
+            entityId: $supplier->id,
+            oldValues: null,
+            newValues: ['name' => $supplier->name, 'phone' => $supplier->phone],
+            userId: Auth::id()
+        );
+
         return redirect()->route('suppliers.index')
             ->with('success', "Pemasok {$supplier->name} berhasil ditambahkan.");
     }
@@ -56,7 +70,18 @@ class SupplierController extends Controller
 
     public function update(UpdateSupplierRequest $request, Supplier $supplier): RedirectResponse
     {
+        $oldValues = $supplier->only(['name', 'phone', 'address']);
         $supplier->update($request->validated());
+        $newValues = $supplier->only(['name', 'phone', 'address']);
+
+        $this->auditService->log(
+            action: 'SUPPLIER_UPDATE',
+            entityType: 'Supplier',
+            entityId: $supplier->id,
+            oldValues: $oldValues,
+            newValues: $newValues,
+            userId: Auth::id()
+        );
 
         return redirect()->route('suppliers.index')
             ->with('success', "Data pemasok {$supplier->name} berhasil diperbarui.");
@@ -67,6 +92,15 @@ class SupplierController extends Controller
         Gate::authorize('master-data.manage');
 
         $supplierName = $supplier->name;
+        $this->auditService->log(
+            action: 'SUPPLIER_DELETE',
+            entityType: 'Supplier',
+            entityId: $supplier->id,
+            oldValues: ['name' => $supplierName],
+            newValues: null,
+            userId: Auth::id()
+        );
+
         $supplier->delete();
 
         return redirect()->route('suppliers.index')

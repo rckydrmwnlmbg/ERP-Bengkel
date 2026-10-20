@@ -16,7 +16,7 @@
 <body class="font-sans antialiased bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900">
     
     <!-- DEMO Top Banner -->
-    @if(env('DEMO', true))
+    @if(config('app.demo', true))
         <div class="bg-amber-500 text-slate-950 font-bold text-center py-2 px-4 text-xs md:text-sm tracking-wider uppercase shadow-md sticky top-0 z-50">
             ⚠️ MODE DEMO — Sistem ERP Bengkel Alat Berat &amp; Toko Sparepart (Semua Data Fiktif)
         </div>
@@ -69,7 +69,7 @@
         <!-- Demo Accounts Grid -->
         <div class="mt-16 pt-12 border-t border-slate-800">
             <h2 class="text-center text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">
-                Pilih Akun Demo untuk Menguji Hak Akses (Password Semua: <code class="text-amber-400 bg-slate-800 px-2 py-0.5 rounded">password123</code>)
+                Pilih Akun Demo untuk Menguji Hak Akses (Password Semua: <code class="text-amber-400 bg-slate-800 px-2 py-0.5 rounded font-mono">password</code>)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 <!-- Admin Card -->
@@ -85,7 +85,7 @@
                     <h3 class="text-base font-bold text-white">Akses Penuh (Admin)</h3>
                     <p class="text-xs text-slate-400 mt-1 mb-4">Master Data, lihat HPP &amp; laba, barang masuk, penyesuaian stok, void invoice/pembayaran, audit log, dan pengaturan.</p>
                     <div class="bg-slate-900/80 rounded-lg p-2.5 font-mono text-xs text-slate-300">
-                        Email: <strong class="text-amber-400">admin@example.com</strong>
+                        Email: <strong class="text-amber-400">admin@bengkel.com</strong>
                     </div>
                 </div>
 
@@ -102,7 +102,7 @@
                     <h3 class="text-base font-bold text-white">Kasir &amp; Penjualan</h3>
                     <p class="text-xs text-slate-400 mt-1 mb-4">Lihat &amp; tambah customer, penjualan sparepart langsung, buat invoice, terima pembayaran cicilan, dan lihat laporan piutang.</p>
                     <div class="bg-slate-900/80 rounded-lg p-2.5 font-mono text-xs text-slate-300">
-                        Email: <strong class="text-amber-400">cashier@example.com</strong>
+                        Email: <strong class="text-amber-400">kasir@bengkel.com</strong>
                     </div>
                 </div>
 
@@ -119,7 +119,7 @@
                     <h3 class="text-base font-bold text-white">Teknisi / Mekanik</h3>
                     <p class="text-xs text-slate-400 mt-1 mb-4">Antarmuka ramah ponsel: buat order servis, isi diagnosa keluhan, pilih sparepart &amp; jasa, serta update status pengerjaan.</p>
                     <div class="bg-slate-900/80 rounded-lg p-2.5 font-mono text-xs text-slate-300">
-                        Email: <strong class="text-amber-400">mechanic@example.com</strong>
+                        Email: <strong class="text-amber-400">mekanik1@bengkel.com</strong>
                     </div>
                 </div>
             </div>

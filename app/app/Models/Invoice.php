@@ -88,10 +88,18 @@ class Invoice extends Model
     }
 
     /**
-     * Jumlah pembayaran valid yang sudah diterima
+     * Jumlah pembayaran valid yang sudah diterima (bebas N+1 jika relasi ter-load)
      */
     public function totalPaid(): int
     {
+        if ($this->relationLoaded('validPayments')) {
+            return (int) $this->validPayments->sum('amount');
+        }
+
+        if ($this->relationLoaded('payments')) {
+            return (int) $this->payments->where('status', 'valid')->sum('amount');
+        }
+
         return (int) $this->validPayments()->sum('amount');
     }
 

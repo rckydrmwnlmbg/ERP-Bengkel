@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: erp_bengkel_app
+    ports:
+      - "8000:10000"
+    environment:
+      - APP_NAME=ERP Bengkel Alat Berat & Toko Sparepart
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8000
+      - APP_KEY=base64:6YG6xCrWI4bO2wQWxgJupu51Byfn+7ZHWDmSRccjTug=
+      - APP_TIMEZONE=Asia/Jakarta
+      - APP_LOCALE=id
+      - APP_FALLBACK_LOCALE=id
+      - DEMO=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=database/database.sqlite
+      - SESSION_DRIVER=cookie
+    volumes:
+      - ./app/database:/var/www/database
+      - ./app/storage:/var/www/storage
+    restart: unless-stopped

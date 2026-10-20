@@ -29,7 +29,7 @@ class InvoiceController extends Controller
     {
         Gate::authorize('invoices.manage');
 
-        $query = Invoice::with(['customer', 'validPayments'])->withCount('items');
+        $query = Invoice::with(['customer', 'validPayments', 'workOrder'])->withCount('items');
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));

@@ -38,5 +38,5 @@ ENV DB_DATABASE=database/database.sqlite
 
 EXPOSE 10000
 
-# Start command: ensure sqlite exists, run migrations and seeder, then serve
-CMD ["sh", "-c", "php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\" && chmod 777 database/database.sqlite 2>/dev/null || true && php artisan config:clear && php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+# Start command: ensure sqlite exists and seeded, then serve
+CMD ["sh", "-c", "php -r \"if (!file_exists('database/database.sqlite') || filesize('database/database.sqlite') === 0) { touch('database/database.sqlite'); chmod('database/database.sqlite', 0777); passthru('php artisan seed:demo'); } else { passthru('php artisan migrate --force'); }\" && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]

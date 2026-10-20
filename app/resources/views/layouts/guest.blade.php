@@ -18,7 +18,7 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <!-- DEMO Banner -->
-        @if(env('DEMO', true))
+        @if(config('app.demo', true))
             <div class="bg-amber-500 text-slate-950 font-bold text-center py-1.5 px-4 text-xs md:text-sm tracking-wider uppercase shadow-sm">
                 ⚠️ MODE DEMO — Sistem ERP Bengkel Alat Berat &amp; Toko Sparepart (Semua Data Fiktif)
             </div>
@@ -38,7 +38,7 @@
             </div>
 
             <!-- DEMO Footer -->
-            @if(env('DEMO', true))
+            @if(config('app.demo', true))
                 <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
                     DEMO Portofolio ERP Bengkel Alat Berat &amp; Toko Sparepart • Zona Waktu: Asia/Jakarta
                 </footer>

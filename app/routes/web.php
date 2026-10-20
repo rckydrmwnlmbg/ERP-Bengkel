@@ -65,11 +65,16 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/export/{type}', [\App\Http\Controllers\ReportController::class, 'exportExcel'])->name('reports.export-excel');
     Route::get('reports/print/{type}', [\App\Http\Controllers\ReportController::class, 'print'])->name('reports.print');
 
+    // Fase 8: Audit Log & Pengaturan Sistem
+    Route::get('audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::get('settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => response()->json(['status' => 'ok', 'message' => 'Admin Dashboard Access Granted']))->name('dashboard');
-        Route::get('/settings', fn () => response()->json(['status' => 'ok', 'message' => 'Settings Access Granted']))->name('settings');
-        Route::get('/audit-logs', fn () => response()->json(['status' => 'ok', 'message' => 'Audit Logs Access Granted']))->name('audit-logs');
+        Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings');
+        Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs');
     });
 
     // Route untuk Admin dan Kasir (PRD: Penjualan langsung, Invoice, Pembayaran)

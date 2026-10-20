@@ -142,6 +142,12 @@
                 <div class="font-bold text-slate-800 underline">{{ $invoice->creator?->name ?? 'Kasir Bengkel' }}</div>
             </div>
         </div>
+
+        @if(config('app.demo', true))
+            <div class="mt-8 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+                ⚠️ DOKUMEN DEMO PORTOFOLIO ERP — SELURUH DATA &amp; NILAI TRANSAKSI FIKTIF
+            </div>
+        @endif
     </div>
 
 </body>

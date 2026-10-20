@@ -241,6 +241,12 @@
                 <p class="font-bold border-t border-slate-400 inline-block px-8 pt-1">Pimpinan / Pemilik Bengkel</p>
             </div>
         </div>
+
+        @if(config('app.demo', true))
+            <div class="mt-8 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+                ⚠️ LAPORAN DEMO PORTOFOLIO ERP — SELURUH DATA &amp; NILAI KEUANGAN FIKTIF
+            </div>
+        @endif
     </div>
 </body>
 </html>

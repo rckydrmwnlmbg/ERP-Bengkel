@@ -94,6 +94,14 @@ class ServiceController extends Controller
         Gate::authorize('master-data.manage');
 
         $serviceName = $service->name;
+        $this->auditService->log(
+            action: 'SERVICE_DELETE',
+            entityType: 'Service',
+            entityId: $service->id,
+            oldValues: ['name' => $serviceName, 'code' => $service->code],
+            newValues: null
+        );
+
         $service->delete();
 
         return redirect()->route('services.index')
