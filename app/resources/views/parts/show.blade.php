@@ -13,8 +13,19 @@
                     {{ $part->sku }}
                 </span>
             </div>
-            @can('master-data.manage')
-                <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('parts.stock-card', $part) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-sm">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Kartu Stok
+                </a>
+                @can('inventory.manage')
+                    <a href="{{ route('stock-adjustments.create', ['part_id' => $part->id]) }}" class="inline-flex items-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition">
+                        Penyesuaian Stok
+                    </a>
+                @endcan
+                @can('master-data.manage')
                     <a href="{{ route('parts.edit', $part) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-sm">
                         Edit Sparepart
                     </a>

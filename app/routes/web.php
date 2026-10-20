@@ -25,9 +25,14 @@ Route::middleware('auth')->group(function () {
     Route::post('customers/{customer}/rates', [\App\Http\Controllers\CustomerServiceRateController::class, 'store'])->name('customers.rates.store');
     Route::delete('customers/{customer}/rates/{rate}', [\App\Http\Controllers\CustomerServiceRateController::class, 'destroy'])->name('customers.rates.destroy');
 
+    Route::get('parts/{part}/stock-card', [\App\Http\Controllers\PartStockCardController::class, 'show'])->name('parts.stock-card');
     Route::resource('parts', \App\Http\Controllers\PartController::class);
     Route::resource('services', \App\Http\Controllers\ServiceController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+
+    // Fase 3: Barang Masuk (Purchases) & Penyesuaian Stok
+    Route::resource('purchases', \App\Http\Controllers\PurchaseController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('stock-adjustments', \App\Http\Controllers\StockAdjustmentController::class)->only(['index', 'create', 'store']);
 
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {

@@ -113,6 +113,9 @@
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
+                                    <a href="{{ route('parts.stock-card', $part) }}" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition" title="Lihat riwayat pergerakan stok">
+                                        Kartu Stok
+                                    </a>
                                     <a href="{{ route('parts.show', $part) }}" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
                                         Detail
                                     </a>
