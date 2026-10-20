@@ -34,6 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', \App\Http\Controllers\PurchaseController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('stock-adjustments', \App\Http\Controllers\StockAdjustmentController::class)->only(['index', 'create', 'store']);
 
+    // Fase 4: Order Servis (Work Orders) & Item Servis
+    Route::resource('work-orders', \App\Http\Controllers\WorkOrderController::class);
+    Route::post('work-orders/{workOrder}/status', [\App\Http\Controllers\WorkOrderController::class, 'transitionStatus'])->name('work-orders.status');
+    Route::post('work-orders/{workOrder}/parts', [\App\Http\Controllers\WorkOrderItemController::class, 'storePart'])->name('work-orders.parts.store');
+    Route::post('work-orders/{workOrder}/services', [\App\Http\Controllers\WorkOrderItemController::class, 'storeService'])->name('work-orders.services.store');
+    Route::delete('work-orders/{workOrder}/items/{item}', [\App\Http\Controllers\WorkOrderItemController::class, 'destroy'])->name('work-orders.items.destroy');
+
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => response()->json(['status' => 'ok', 'message' => 'Admin Dashboard Access Granted']))->name('dashboard');

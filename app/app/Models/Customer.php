@@ -37,4 +37,9 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerServiceRate::class);
     }
+
+    public function workOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class);
+    }
 }

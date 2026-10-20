@@ -91,11 +91,13 @@
         <div x-show="!collapsed" class="pt-4 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             Operasional
         </div>
-        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        <a href="{{ route('work-orders.index') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('work-orders.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            <span x-show="!collapsed" class="ms-3">Order Servis (WO)</span>
+            <span x-show="!collapsed" class="ms-3">Order Servis (SPK)</span>
         </a>
         @can('direct-sales.manage')
         <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
