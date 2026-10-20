@@ -156,7 +156,12 @@
         @endcan
 
         @can('expenses.manage')
-        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        <div x-show="!collapsed" class="pt-4 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Biaya Operasional
+        </div>
+        <a href="{{ route('expenses.index') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('expenses.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -164,16 +169,44 @@
         </a>
         @endcan
 
-        <!-- Laporan & Admin Section -->
+        <!-- Laporan Section -->
         @can('reports.receivables.view')
         <div x-show="!collapsed" class="pt-4 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             Laporan
         </div>
-        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        @can('reports.view')
+        <a href="{{ route('reports.revenue') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('reports.revenue') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <span x-show="!collapsed" class="ms-3">Laporan {{ Auth::user()?->role === 'cashier' ? 'Piutang' : 'Keuangan' }}</span>
+            <span x-show="!collapsed" class="ms-3">Laporan Omzet</span>
+        </a>
+        <a href="{{ route('reports.profit-loss') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('reports.profit-loss') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m0 0l-6-6m6 6H3" />
+            </svg>
+            <span x-show="!collapsed" class="ms-3">Laba Rugi Sederhana</span>
+        </a>
+        <a href="{{ route('reports.cash-flow') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('reports.cash-flow') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            <span x-show="!collapsed" class="ms-3">Arus Kas</span>
+        </a>
+        @endcan
+        <a href="{{ route('reports.receivables') }}" 
+           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('reports.receivables') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span x-show="!collapsed" class="ms-3">Laporan Piutang & Aging</span>
         </a>
         @endcan
 

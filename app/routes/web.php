@@ -7,9 +7,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -55,6 +53,17 @@ Route::middleware('auth')->group(function () {
     Route::post('payments/{payment}/void', [\App\Http\Controllers\PaymentController::class, 'void'])->name('payments.void');
 
     Route::get('receivables', [\App\Http\Controllers\ReceivableController::class, 'index'])->name('receivables.index');
+
+    // Fase 6: Pengeluaran Operasional (Expenses)
+    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+
+    // Fase 6: Laporan (Reports) & Ekspor
+    Route::get('reports/revenue', [\App\Http\Controllers\ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('reports/profit-loss', [\App\Http\Controllers\ReportController::class, 'profitLoss'])->name('reports.profit-loss');
+    Route::get('reports/cash-flow', [\App\Http\Controllers\ReportController::class, 'cashFlow'])->name('reports.cash-flow');
+    Route::get('reports/receivables', [\App\Http\Controllers\ReportController::class, 'receivables'])->name('reports.receivables');
+    Route::get('reports/export/{type}', [\App\Http\Controllers\ReportController::class, 'exportExcel'])->name('reports.export-excel');
+    Route::get('reports/print/{type}', [\App\Http\Controllers\ReportController::class, 'print'])->name('reports.print');
 
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
