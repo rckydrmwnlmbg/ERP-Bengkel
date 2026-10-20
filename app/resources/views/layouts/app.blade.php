@@ -11,21 +11,10 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Tailwind CSS & Vite Assets -->
+        <!-- Scripts (Vite + Tailwind/Alpine CDN Fallback) -->
         <script src="https://cdn.tailwindcss.com"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script>
-            // Fail-safe Alpine.js: hanya dimuat dari CDN jika bundle Vite belum menginisialisasi window.Alpine
-            document.addEventListener('DOMContentLoaded', function () {
-                if (!window.Alpine) {
-                    var script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
-                    script.defer = true;
-                    document.head.appendChild(script);
-                }
-            });
-        </script>
-        <style>[x-cloak] { display: none !important; }</style>
     </head>
     <body class="font-sans antialiased bg-slate-100 text-slate-900">
         <!-- DEMO Banner (Top) -->
@@ -54,6 +43,28 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                    @if (session('success'))
+                        <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>{{ session('success') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-semibold flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                <span>{{ session('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     {{ $slot }}
                 </main>
 

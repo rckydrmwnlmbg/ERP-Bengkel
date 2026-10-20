@@ -16,6 +16,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Fase 2: Master Data
+    Route::resource('customers', \App\Http\Controllers\CustomerController::class);
+    Route::post('customers/{customer}/equipment-units', [\App\Http\Controllers\EquipmentUnitController::class, 'store'])->name('customers.equipment-units.store');
+    Route::put('equipment-units/{equipmentUnit}', [\App\Http\Controllers\EquipmentUnitController::class, 'update'])->name('equipment-units.update');
+    Route::delete('equipment-units/{equipmentUnit}', [\App\Http\Controllers\EquipmentUnitController::class, 'destroy'])->name('equipment-units.destroy');
+
+    Route::post('customers/{customer}/rates', [\App\Http\Controllers\CustomerServiceRateController::class, 'store'])->name('customers.rates.store');
+    Route::delete('customers/{customer}/rates/{rate}', [\App\Http\Controllers\CustomerServiceRateController::class, 'destroy'])->name('customers.rates.destroy');
+
+    Route::resource('parts', \App\Http\Controllers\PartController::class);
+    Route::resource('services', \App\Http\Controllers\ServiceController::class);
+    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => response()->json(['status' => 'ok', 'message' => 'Admin Dashboard Access Granted']))->name('dashboard');
