@@ -224,27 +224,70 @@ Sesuai arahan spesifikasi PRD untuk memfokuskan demo portofolio pada kualitas lo
 
 ---
 
-## Konfigurasi Deployment Sederhana
+## Panduan Setup Produksi & Deployment
 
-Proyek ini telah dilengkapi konfigurasi deployment untuk berbagai platform cloud modern:
+### 1. Deployment ke Vercel (Serverless + Database Eksternal)
 
-### 1. Vercel (Serverless Deployment)
-Konfigurasi file [`vercel.json`](file:///root/ERP/vercel.json) telah disediakan:
-- Runtime PHP serverless via `vercel-php@0.8.0`.
-- Skrip inisialisasi pada `app/api/index.php` secara otomatis menyalin database template `database.sqlite` ke `/tmp/database.sqlite` saat container cold-start, sehingga demo langsung berjalan tanpa konfigurasi server tambahan.
+Aplikasi telah dioptimalkan agar berjalan secara *stateless* di lingkungan serverless Vercel:
+- **Proxy Dipercaya (`TrustProxies`)**: Seluruh request HTTPS melalui reverse proxy Vercel dikenali dengan benar di `app/bootstrap/app.php` (`trustProxies(at: '*')`).
+- **Session & Cache Bebas Disk Lokal**: Menggunakan `SESSION_DRIVER=cookie` (terenkripsi) dan `CACHE_STORE=array` agar tidak bergantung pada filesystem ephemeral.
+- **Koneksi Database Eksternal**: Serverless instances berbagi database terkelola yang sama secara persisten.
 
-### 2. Render / Railway / Fly.io (Docker Deployment)
-File spesifikasi [`render.yaml`](file:///root/ERP/render.yaml) dan [`app/Dockerfile`](file:///root/ERP/app/Dockerfile) berbasis Alpine Linux ringan:
-- Menyediakan web server siap pakai dengan eksekusi database seeder otomatis jika database kosong.
+#### Langkah Setup Produksi di Vercel:
+1. **Siapkan Database Eksternal Terkelola**:
+   - Buat database cloud gratis (disarankan **PostgreSQL** di [Neon.tech](https://neon.tech), [Supabase](https://supabase.com), atau MySQL di [Aiven](https://aiven.io)).
+2. **Atur Environment Variables di Dashboard Vercel**:
+   Buka **Settings &rarr; Environment Variables** di proyek Vercel Anda, lalu tambahkan:
+   ```env
+   APP_NAME="ERP Bengkel Alat Berat"
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://<nama-proyek-anda>.vercel.app
+   APP_KEY=base64:6YG6xCrWI4bO2wQWxgJupu51Byfn+7ZHWDmSRccjTug=
+   
+   DB_CONNECTION=pgsql
+   DB_HOST=<host-database-cloud>
+   DB_PORT=5432
+   DB_DATABASE=<nama-database>
+   DB_USERNAME=<user-database>
+   DB_PASSWORD=<password-database>
+   DB_SSLMODE=require
 
-### 3. VPS Tradisional (Nginx + PHP-FPM)
-Aplikasi dapat dijalankan di VPS Ubuntu/Debian menggunakan konfigurasi standar Laravel:
-- Document root diarahkan ke folder `app/public`.
-- Izin tulis pada folder `app/storage` dan `app/bootstrap/cache`.
+   SESSION_DRIVER=cookie
+   CACHE_STORE=array
+   QUEUE_CONNECTION=sync
+   DEMO=true
+   ```
+3. **Jalankan Migrasi & Reset Data Demo (Langkah Terpisah dari Deploy)**:
+   > ⚠️ **PENTING**: Di serverless Vercel, migrasi **TIDAK DIJALANKAN OTOMATIS** saat cold-start untuk mencegah *request timeout* dan *race condition*.
+   
+   Untuk melakukan inisialisasi awal atau mereset data demo ke database cloud produksi, arahkan file `.env` di komputer lokal Anda ke database cloud tersebut, lalu jalankan satu perintah:
+   ```bash
+   cd app
+   php artisan seed:demo --fresh
+   ```
+   Perintah ini akan membersihkan database, menjalankan seluruh migrasi, mengisi data realistis 12 bulan, dan memverifikasi seluruh 6 invarian bisnis.
 
 ---
 
-## Pengujian Otomatis (Test Suite)
+### 2. Keterbatasan Runtime Vercel & Rekomendasi Pindah Hosting
+
+Meskipun Vercel dapat digunakan dengan database eksternal terkelola, runtime serverless memiliki karakteristik inheren:
+- **Connection Exhaustion**: Setiap instance serverless Lambda membuka koneksi mandiri. Tanpa connection pooler (seperti Supabase Pooler port 6543 atau Neon Connection Pooling), traffic tinggi dapat menghabiskan kuota *max connections*.
+- **Ketiadaan Background Worker**: Vercel tidak mendukung proses daemon (`php artisan queue:work` atau cron `schedule:run`).
+- **Timeout 10-15 Detik**: Pembuatan laporan finansial kompleks atau ekspor berisiko mengalami *504 Gateway Timeout*.
+
+#### Opsi Hosting Alternatif yang Lebih Ideal (Container):
+1. **Render.com** (Konfigurasi [`render.yaml`](file:///root/ERP/render.yaml) & [`app/Dockerfile`](file:///root/ERP/app/Dockerfile) telah tersedia):
+   - Mendukung container Docker native, free tier managed PostgreSQL, dan terminal SSH langsung di web dashboard untuk menjalankan `php artisan seed:demo --fresh`.
+2. **Railway / Fly.io**:
+   - Mendukung container Laravel lengkap dengan worker background antrian dan database terintegrasi.
+3. **VPS Tradisional (Coolify / Laravel Forge / Docker Compose)**:
+   - File [`docker-compose.yml`](file:///root/ERP/docker-compose.yml) siap pakai untuk deploy mandiri dengan satu perintah `docker compose up -d`.
+
+---
+
+### 3. Pengujian Otomatis (Test Suite)
 
 Seluruh fungsionalitas diuji secara ketat menggunakan **PHPUnit** dengan database in-memory SQLite:
 
