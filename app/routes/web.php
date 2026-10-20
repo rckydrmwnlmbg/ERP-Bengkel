@@ -41,6 +41,21 @@ Route::middleware('auth')->group(function () {
     Route::post('work-orders/{workOrder}/services', [\App\Http\Controllers\WorkOrderItemController::class, 'storeService'])->name('work-orders.services.store');
     Route::delete('work-orders/{workOrder}/items/{item}', [\App\Http\Controllers\WorkOrderItemController::class, 'destroy'])->name('work-orders.items.destroy');
 
+    // Fase 5: Invoice, Penjualan Langsung, Pembayaran, dan Piutang
+    Route::get('invoices/from-work-order/{workOrder}', [\App\Http\Controllers\InvoiceController::class, 'createFromWorkOrder'])->name('invoices.create-from-wo');
+    Route::post('invoices/from-work-order/{workOrder}', [\App\Http\Controllers\InvoiceController::class, 'storeFromWorkOrder'])->name('invoices.store-from-wo');
+    Route::get('direct-sales/create', [\App\Http\Controllers\InvoiceController::class, 'createDirectSale'])->name('direct-sales.create');
+    Route::post('direct-sales', [\App\Http\Controllers\InvoiceController::class, 'storeDirectSale'])->name('direct-sales.store');
+
+    Route::resource('invoices', \App\Http\Controllers\InvoiceController::class)->only(['index', 'show']);
+    Route::get('invoices/{invoice}/print', [\App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
+    Route::post('invoices/{invoice}/void', [\App\Http\Controllers\InvoiceController::class, 'void'])->name('invoices.void');
+
+    Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\PaymentController::class, 'store'])->name('invoices.payments.store');
+    Route::post('payments/{payment}/void', [\App\Http\Controllers\PaymentController::class, 'void'])->name('payments.void');
+
+    Route::get('receivables', [\App\Http\Controllers\ReceivableController::class, 'index'])->name('receivables.index');
+
     // Route khusus Admin (PRD: Laporan penuh, HPP, Penyesuaian stok, Pengaturan, Audit Log)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => response()->json(['status' => 'ok', 'message' => 'Admin Dashboard Access Granted']))->name('dashboard');

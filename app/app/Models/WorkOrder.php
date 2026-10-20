@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Model
@@ -66,6 +67,16 @@ class WorkOrder extends Model
     public function serviceItems(): HasMany
     {
         return $this->hasMany(WorkOrderItem::class)->where('item_type', 'service');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function activeInvoice(): HasOne
+    {
+        return $this->hasOne(Invoice::class)->where('status', '!=', 'void');
     }
 
     /**

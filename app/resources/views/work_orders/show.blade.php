@@ -38,15 +38,31 @@
                 @endswitch
             </div>
 
-            @can('service-orders.manage')
-                @if($workOrder->status !== 'invoiced' && $workOrder->status !== 'cancelled')
-                    <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2">
+                @can('service-orders.manage')
+                    @if($workOrder->status !== 'invoiced' && $workOrder->status !== 'cancelled')
                         <a href="{{ route('work-orders.edit', $workOrder) }}" class="inline-flex items-center px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-lg transition">
                             Edit Keluhan / Diagnosa
                         </a>
-                    </div>
-                @endif
-            @endcan
+                    @endif
+                @endcan
+
+                @can('invoices.create')
+                    @if($workOrder->status === 'completed')
+                        <a href="{{ route('invoices.create-from-wo', $workOrder) }}" class="inline-flex items-center px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow transition">
+                            Buat Invoice
+                        </a>
+                    @endif
+                @endcan
+
+                @can('invoices.view')
+                    @if($workOrder->status === 'invoiced' && $workOrder->activeInvoice)
+                        <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="inline-flex items-center px-3.5 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-xs uppercase tracking-wider rounded-lg transition border border-purple-300">
+                            Invoice: {{ $workOrder->activeInvoice->invoice_number }}
+                        </a>
+                    @endif
+                @endcan
+            </div>
         </div>
     </x-slot>
 
@@ -115,6 +131,44 @@
                 </div>
             @endif
         @endcan
+
+        @if($workOrder->status === 'completed')
+            <div class="bg-gradient-to-r from-emerald-900 to-emerald-800 p-4 sm:p-5 rounded-2xl shadow-md text-white">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-emerald-300 font-bold block">Pengerjaan Selesai (BR-W1)</span>
+                        <h3 class="text-lg font-black mt-0.5">Order Servis Siap Dibuatkan Faktur Tagihan</h3>
+                        <p class="text-xs text-emerald-100 mt-1">Servis telah diselesaikan oleh tim mekanik. Kasir atau Admin dapat menerbitkan Invoice sekarang.</p>
+                    </div>
+                    @can('invoices.create')
+                        <div class="flex items-center">
+                            <a href="{{ route('invoices.create-from-wo', $workOrder) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-white hover:bg-emerald-50 text-emerald-900 font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                <span>📄 Terbitkan Invoice</span>
+                            </a>
+                        </div>
+                    @endcan
+                </div>
+            </div>
+        @elseif($workOrder->status === 'invoiced')
+            <div class="bg-gradient-to-r from-purple-900 to-purple-800 p-4 sm:p-5 rounded-2xl shadow-md text-white">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-purple-300 font-bold block">Status Penagihan (BR-W1)</span>
+                        <h3 class="text-lg font-black mt-0.5">Faktur Tagihan Telah Diterbitkan</h3>
+                        <p class="text-xs text-purple-100 mt-1">Order servis ini terikat ke invoice <span class="font-mono font-bold text-amber-300">{{ $workOrder->activeInvoice?->invoice_number }}</span>.</p>
+                    </div>
+                    @can('invoices.view')
+                        @if($workOrder->activeInvoice)
+                            <div class="flex items-center">
+                                <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                    <span>👁️ Buka Faktur Invoice</span>
+                                </a>
+                            </div>
+                        @endif
+                    @endcan
+                </div>
+            </div>
+        @endif
 
         <!-- Grid Info Unit & Customer -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

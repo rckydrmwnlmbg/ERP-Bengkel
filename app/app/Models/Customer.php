@@ -42,4 +42,18 @@ class Customer extends Model
     {
         return $this->hasMany(WorkOrder::class);
     }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * BR-R6: Total piutang customer = Σ (total − pembayaran valid) untuk invoice non-void dengan sisa > 0.
+     */
+    public function calculateTotalReceivables(): int
+    {
+        $invoices = $this->invoices()->where('status', '!=', 'void')->with('validPayments')->get();
+        return $invoices->sum(fn (Invoice $inv) => $inv->remainingBalance());
+    }
 }
