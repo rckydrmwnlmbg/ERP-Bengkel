@@ -28,13 +28,14 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
      * Attempt to authenticate the request's credentials.
+     * Mendukung alias domain demo (bengkel.com, erp.test, example.com) dan username langsung (admin, kasir, mekanik).
      *
      * @throws ValidationException
      */
@@ -42,7 +43,44 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $input = trim((string) $this->input('email'));
+        $password = (string) $this->input('password');
+
+        // 1. Coba login langsung dengan input pengguna
+        $authenticated = Auth::attempt(['email' => $input, 'password' => $password], $this->boolean('remember'));
+
+        // 2. Jika gagal, coba permutasi domain demo dan password demo (password / password123)
+        if (! $authenticated) {
+            $prefix = str_contains($input, '@') ? explode('@', $input)[0] : $input;
+            $candidateEmails = array_unique([
+                $input,
+                $prefix . '@bengkel.com',
+                $prefix . '@erp.test',
+                $prefix . '@example.com',
+            ]);
+
+            $candidatePasswords = array_unique([
+                $password,
+                'password',
+                'password123',
+            ]);
+
+            // Hanya coba fallback password demo jika password yang diinput adalah variasi password demo
+            $passwordsToTry = in_array($password, ['password', 'password123'], true)
+                ? $candidatePasswords
+                : [$password];
+
+            foreach ($candidateEmails as $candEmail) {
+                foreach ($passwordsToTry as $candPass) {
+                    if (Auth::attempt(['email' => $candEmail, 'password' => $candPass], $this->boolean('remember'))) {
+                        $authenticated = true;
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

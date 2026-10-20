@@ -2,6 +2,33 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    <!-- 1-Click Demo Login Selector -->
+    <div class="mb-6 p-4 rounded-xl bg-slate-900 text-white shadow-md border border-slate-800">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-2.5 flex items-center gap-1.5">
+            <span>⚡ Akun Demo (1-Klik untuk Mengisi)</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <button type="button" 
+                    onclick="document.getElementById('email').value='admin@bengkel.com'; document.getElementById('password').value='password';"
+                    class="px-2 py-2 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-700/80 text-red-200 text-xs font-bold text-center transition shadow-sm">
+                👑 Admin
+            </button>
+            <button type="button" 
+                    onclick="document.getElementById('email').value='kasir@bengkel.com'; document.getElementById('password').value='password';"
+                    class="px-2 py-2 rounded-lg bg-blue-950/80 hover:bg-blue-900 border border-blue-700/80 text-blue-200 text-xs font-bold text-center transition shadow-sm">
+                💼 Kasir
+            </button>
+            <button type="button" 
+                    onclick="document.getElementById('email').value='mekanik1@bengkel.com'; document.getElementById('password').value='password';"
+                    class="px-2 py-2 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-200 text-xs font-bold text-center transition shadow-sm">
+                🔧 Mekanik
+            </button>
+        </div>
+        <p class="mt-2 text-[11px] text-slate-400">
+            Password: <code class="text-amber-400 font-mono font-bold">password</code> &bull; Klik salah satu tombol di atas untuk mengisi formulir secara instan.
+        </p>
+    </div>
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
