@@ -28,7 +28,7 @@
   "env": {
     "APP_NAME": "ERP Bengkel Alat Berat",
     "APP_ENV": "production",
-    "APP_DEBUG": "false",
+    "APP_DEBUG": "true",
     "APP_URL": "https://erp-bengkel.vercel.app",
     "APP_KEY": "base64:6YG6xCrWI4bO2wQWxgJupu51Byfn+7ZHWDmSRccjTug=",
     "APP_TIMEZONE": "Asia/Jakarta",
