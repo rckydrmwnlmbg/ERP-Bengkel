@@ -108,9 +108,10 @@ class WorkOrder extends Model
     /**
      * Generate nomor WO unik dan berurutan bulanan (WO-YYMM-####)
      */
-    public static function generateNextNumber(): string
+    public static function generateNextNumber(?string $date = null): string
     {
-        $prefix = 'WO-' . date('ym') . '-';
+        $targetDate = $date ? \Carbon\Carbon::parse($date) : now();
+        $prefix = 'WO-' . $targetDate->format('ym') . '-';
 
         $latestNumber = self::where('wo_number', 'like', "{$prefix}%")
             ->orderByDesc('id')

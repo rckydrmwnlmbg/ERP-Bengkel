@@ -23,7 +23,7 @@ class WorkOrderService
     public function createWorkOrder(array $data, ?int $userId = null): WorkOrder
     {
         return DB::transaction(function () use ($data, $userId) {
-            $woNumber = WorkOrder::generateNextNumber();
+            $woNumber = WorkOrder::generateNextNumber($data['opened_at'] ?? null);
 
             $workOrder = WorkOrder::create([
                 'wo_number' => $woNumber,
@@ -33,7 +33,7 @@ class WorkOrderService
                 'diagnosis' => $data['diagnosis'] ?? null,
                 'status' => 'open',
                 'mechanic_id' => $data['mechanic_id'] ?? null,
-                'opened_at' => now(),
+                'opened_at' => $data['opened_at'] ?? now(),
                 'created_by' => $userId,
             ]);
 
