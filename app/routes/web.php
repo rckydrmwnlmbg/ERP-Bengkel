@@ -41,6 +41,68 @@ Route::get('/db-test', function () {
     }
 });
 
+Route::get('/db-init', function () {
+    try {
+        $startTime = microtime(true);
+        $log = [];
+
+        // 1. Jalankan migrasi Laravel untuk membuat semua tabel
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $log[] = 'Migrate: ' . trim(\Illuminate\Support\Facades\Artisan::output());
+
+        // 2. Buat akun demo utama (admin, kasir, mekanik)
+        $demoUsers = [
+            ['name' => 'Administrator Demo', 'email' => 'admin@erp.test', 'password' => 'password', 'role' => 'admin'],
+            ['name' => 'Siti Kasir', 'email' => 'kasir@erp.test', 'password' => 'password', 'role' => 'cashier'],
+            ['name' => 'Budi Mekanik', 'email' => 'mekanik1@erp.test', 'password' => 'password', 'role' => 'mechanic'],
+            ['name' => 'Admin Bengkel', 'email' => 'admin@bengkel.com', 'password' => 'password', 'role' => 'admin'],
+            ['name' => 'Kasir Bengkel', 'email' => 'kasir@bengkel.com', 'password' => 'password', 'role' => 'cashier'],
+            ['name' => 'Admin Example', 'email' => 'admin@example.com', 'password' => 'password123', 'role' => 'admin'],
+        ];
+
+        foreach ($demoUsers as $u) {
+            \App\Models\User::firstOrCreate(
+                ['email' => $u['email']],
+                [
+                    'name' => $u['name'],
+                    'password' => \Illuminate\Support\Facades\Hash::make($u['password']),
+                    'role' => $u['role'],
+                    'is_active' => true,
+                ]
+            );
+        }
+        $log[] = 'Users demo berhasil disiapkan.';
+
+        // 3. Jalankan DatabaseSeeder untuk default settings & customer umum
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        $log[] = 'DatabaseSeeder: ' . trim(\Illuminate\Support\Facades\Artisan::output());
+
+        $userCount = \Illuminate\Support\Facades\DB::table('users')->count();
+        $duration = round(microtime(true) - $startTime, 2);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database Supabase berhasil diinisialisasi dalam ' . $duration . ' detik!',
+            'user_count' => $userCount,
+            'log' => $log,
+            'credentials' => [
+                'Admin' => 'admin@erp.test / password',
+                'Kasir' => 'kasir@erp.test / password',
+                'Mekanik' => 'mekanik1@erp.test / password',
+            ],
+            'next' => 'Silakan buka https://erp-bengkel-beta.vercel.app/login dan login!',
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
