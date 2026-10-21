@@ -19,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->report(function (\Throwable $e): void {
+        // TEMPORARY - hapus setelah diagnosis selesai
+        $exceptions->report(function (\Throwable $e): bool {
             try {
                 $class = get_class($e);
                 $message = mb_substr(str_replace(["\r\n", "\r", "\n"], ' ', $e->getMessage()), 0, 300);
@@ -39,7 +40,26 @@ return Application::configure(basePath: dirname(__DIR__))
                 $method = ($request instanceof Request) ? $request->method() : (app()->runningInConsole() ? 'CLI' : 'UNKNOWN');
                 $path = ($request instanceof Request) ? $request->path() : implode(' ', $_SERVER['argv'] ?? ['artisan']);
 
-                $diag = sprintf('[DIAG] %s | %s | %s:%d | %s %s', $class, $message, $file, $line, $method, $path);
+                $conn = config('database.default');
+                $session = config('session.driver');
+                $cache = config('cache.default');
+                $host = gethostname();
+                $pid = getmypid();
+
+                $diag = sprintf(
+                    '[DIAG] %s | %s | %s:%d | %s %s | conn=%s | session=%s | cache=%s | host=%s | pid=%s',
+                    $class,
+                    $message,
+                    $file,
+                    $line,
+                    $method,
+                    $path,
+                    $conn,
+                    $session,
+                    $cache,
+                    $host,
+                    $pid
+                );
 
                 if (defined('STDERR') && is_resource(STDERR)) {
                     @fwrite(STDERR, $diag . PHP_EOL);
@@ -49,6 +69,8 @@ return Application::configure(basePath: dirname(__DIR__))
             } catch (\Throwable) {
                 // Menjamin kegagalan pencatatan diagnostik tidak mengganggu alur aplikasi
             }
+
+            return false;
         });
 
         $exceptions->shouldRenderJsonWhen(
