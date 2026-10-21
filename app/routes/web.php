@@ -103,6 +103,43 @@ Route::get('/db-init', function () {
     }
 });
 
+Route::get('/db-seed', function () {
+    try {
+        $startTime = microtime(true);
+        $sqlPath = database_path('demo_seed_data.sql');
+        if (!file_exists($sqlPath)) {
+            return response()->json(['error' => 'File demo_seed_data.sql tidak ditemukan'], 404);
+        }
+
+        $sql = file_get_contents($sqlPath);
+        \Illuminate\Support\Facades\DB::unprepared($sql);
+        $duration = round(microtime(true) - $startTime, 2);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Seluruh data demo (12 bulan riwayat transaksi) berhasil di-import ke Supabase dalam ' . $duration . ' detik!',
+            'counts' => [
+                'parts' => \Illuminate\Support\Facades\DB::table('parts')->count(),
+                'customers' => \Illuminate\Support\Facades\DB::table('customers')->count(),
+                'equipment_units' => \Illuminate\Support\Facades\DB::table('equipment_units')->count(),
+                'work_orders' => \Illuminate\Support\Facades\DB::table('work_orders')->count(),
+                'invoices' => \Illuminate\Support\Facades\DB::table('invoices')->count(),
+                'payments' => \Illuminate\Support\Facades\DB::table('payments')->count(),
+                'stock_movements' => \Illuminate\Support\Facades\DB::table('stock_movements')->count(),
+                'audit_logs' => \Illuminate\Support\Facades\DB::table('audit_logs')->count(),
+            ],
+            'next' => 'Silakan buka https://erp-bengkel-beta.vercel.app/dashboard untuk melihat dashboard lengkap dengan angka-angka riil!',
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ], 500);
+    }
+});
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
