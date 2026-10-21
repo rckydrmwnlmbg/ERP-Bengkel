@@ -7,6 +7,40 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/db-test', function () {
+    try {
+        $connection = \Illuminate\Support\Facades\DB::connection();
+        $pdo = $connection->getPdo();
+        $driver = $connection->getDriverName();
+        $database = $connection->getDatabaseName();
+        $userCount = \Illuminate\Support\Facades\DB::table('users')->count();
+        $users = \Illuminate\Support\Facades\DB::table('users')->select('id', 'name', 'email', 'role')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database terhubung dengan sukses!',
+            'driver' => $driver,
+            'database' => $database,
+            'user_count' => $userCount,
+            'users' => $users,
+            'env_db_connection' => env('DB_CONNECTION'),
+            'has_postgres_url' => !empty(env('POSTGRES_URL')),
+            'has_database_url' => !empty(env('DATABASE_URL')),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'driver_in_config' => config('database.default'),
+            'has_postgres_url' => !empty(env('POSTGRES_URL')),
+            'has_database_url' => !empty(env('DATABASE_URL')),
+        ], 500);
+    }
+});
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
