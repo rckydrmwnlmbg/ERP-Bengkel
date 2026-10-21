@@ -1,4 +1,4 @@
-TRUNCATE TABLE suppliers, parts, services, customers, customer_service_rates, equipment_units, purchases, purchase_items, work_orders, work_order_items, invoices, invoice_items, payments, stock_movements, expenses, audit_logs CASCADE;
+TRUNCATE TABLE settings, suppliers, parts, services, customers, customer_service_rates, equipment_units, purchases, purchase_items, work_orders, work_order_items, invoices, invoice_items, payments, stock_movements, expenses, audit_logs CASCADE;
 INSERT INTO settings ("id", "key", "value", "created_at", "updated_at") VALUES
   (1, 'shop_name', 'Bengkel Alat Berat & Toko Sparepart Nusantara', '2026-10-20 12:00:00', '2026-10-20 12:00:00'),
   (2, 'tax_rate_percent', 0, '2026-10-20 12:00:00', '2026-10-20 12:00:00');
