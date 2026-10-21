@@ -19,6 +19,38 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->report(function (\Throwable $e): void {
+            try {
+                $class = get_class($e);
+                $message = mb_substr(str_replace(["\r\n", "\r", "\n"], ' ', $e->getMessage()), 0, 300);
+
+                $basePath = base_path();
+                $parentPath = dirname($basePath);
+                $file = $e->getFile();
+                if (str_starts_with($file, $basePath . DIRECTORY_SEPARATOR)) {
+                    $file = substr($file, strlen($basePath . DIRECTORY_SEPARATOR));
+                } elseif (str_starts_with($file, $parentPath . DIRECTORY_SEPARATOR)) {
+                    $file = substr($file, strlen($parentPath . DIRECTORY_SEPARATOR));
+                }
+
+                $line = $e->getLine();
+
+                $request = app()->has('request') ? app('request') : null;
+                $method = ($request instanceof Request) ? $request->method() : (app()->runningInConsole() ? 'CLI' : 'UNKNOWN');
+                $path = ($request instanceof Request) ? $request->path() : implode(' ', $_SERVER['argv'] ?? ['artisan']);
+
+                $diag = sprintf('[DIAG] %s | %s | %s:%d | %s %s', $class, $message, $file, $line, $method, $path);
+
+                if (defined('STDERR') && is_resource(STDERR)) {
+                    @fwrite(STDERR, $diag . PHP_EOL);
+                } else {
+                    @file_put_contents('php://stderr', $diag . PHP_EOL);
+                }
+            } catch (\Throwable) {
+                // Menjamin kegagalan pencatatan diagnostik tidak mengganggu alur aplikasi
+            }
+        });
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
