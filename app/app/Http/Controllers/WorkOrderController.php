@@ -91,6 +91,7 @@ class WorkOrderController extends Controller
             'creator',
             'items.part',
             'items.service',
+            'activeInvoice',
         ]);
 
         $availableParts = Part::where('is_active', true)->orderBy('name')->get();

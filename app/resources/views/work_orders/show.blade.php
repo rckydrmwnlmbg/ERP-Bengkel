@@ -47,21 +47,20 @@
                     @endif
                 @endcan
 
-                @can('invoices.create')
-                    @if($workOrder->status === 'completed')
-                        <a href="{{ route('invoices.create-from-wo', $workOrder) }}" class="inline-flex items-center px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow transition">
-                            Buat Invoice
-                        </a>
-                    @endif
-                @endcan
-
-                @can('invoices.view')
-                    @if($workOrder->status === 'invoiced' && $workOrder->activeInvoice)
-                        <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="inline-flex items-center px-3.5 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-xs uppercase tracking-wider rounded-lg transition border border-purple-300">
-                            Invoice: {{ $workOrder->activeInvoice->invoice_number }}
-                        </a>
-                    @endif
-                @endcan
+                @if($workOrder->activeInvoice)
+                    <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="inline-flex items-center px-3.5 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-xs uppercase tracking-wider rounded-lg transition border border-purple-300">
+                        Invoice: {{ $workOrder->activeInvoice->invoice_number }}
+                    </a>
+                @elseif($workOrder->status === 'completed')
+                    @can('invoices.manage')
+                        <form action="{{ route('invoices.store-from-wo', $workOrder) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow transition">
+                                Terbitkan Invoice
+                            </button>
+                        </form>
+                    @endcan
+                @endif
             </div>
         </div>
     </x-slot>
@@ -140,13 +139,24 @@
                         <h3 class="text-lg font-black mt-0.5">Order Servis Siap Dibuatkan Faktur Tagihan</h3>
                         <p class="text-xs text-emerald-100 mt-1">Servis telah diselesaikan oleh tim mekanik. Kasir atau Admin dapat menerbitkan Invoice sekarang.</p>
                     </div>
-                    @can('invoices.create')
+                    @if($workOrder->activeInvoice)
                         <div class="flex items-center">
-                            <a href="{{ route('invoices.create-from-wo', $workOrder) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-white hover:bg-emerald-50 text-emerald-900 font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                <span>📄 Terbitkan Invoice</span>
+                            <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                <span>👁️ Buka Faktur Invoice</span>
                             </a>
                         </div>
-                    @endcan
+                    @else
+                        @can('invoices.manage')
+                            <div class="flex items-center">
+                                <form action="{{ route('invoices.store-from-wo', $workOrder) }}" method="POST" class="w-full sm:w-auto">
+                                    @csrf
+                                    <button type="submit" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-white hover:bg-emerald-50 text-emerald-900 font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                        <span>📄 Terbitkan Invoice</span>
+                                    </button>
+                                </form>
+                            </div>
+                        @endcan
+                    @endif
                 </div>
             </div>
         @elseif($workOrder->status === 'invoiced')
@@ -157,15 +167,13 @@
                         <h3 class="text-lg font-black mt-0.5">Faktur Tagihan Telah Diterbitkan</h3>
                         <p class="text-xs text-purple-100 mt-1">Order servis ini terikat ke invoice <span class="font-mono font-bold text-amber-300">{{ $workOrder->activeInvoice?->invoice_number }}</span>.</p>
                     </div>
-                    @can('invoices.view')
-                        @if($workOrder->activeInvoice)
-                            <div class="flex items-center">
-                                <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                    <span>👁️ Buka Faktur Invoice</span>
-                                </a>
-                            </div>
-                        @endif
-                    @endcan
+                    @if($workOrder->activeInvoice)
+                        <div class="flex items-center">
+                            <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                <span>👁️ Buka Faktur Invoice</span>
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
