@@ -66,17 +66,6 @@
     </x-slot>
 
     <div class="space-y-6">
-        <!-- Notification / Error Messages -->
-        @if($errors->any())
-            <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <!-- Quick Action Banner for Mechanics (Mobile-First Touch Target) -->
         @can('service-orders.manage')
             @if($workOrder->status === 'open' || $workOrder->status === 'in_progress')

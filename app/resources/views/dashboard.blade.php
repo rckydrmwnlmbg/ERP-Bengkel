@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- 4. Stok Menipis (qty_on_hand <= min_stock) -->
+            {{-- 4. Stok Menipis (qty_on_hand <= min_stock) --}}
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between">

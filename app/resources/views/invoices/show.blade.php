@@ -46,16 +46,6 @@
     </x-slot>
 
     <div class="space-y-6">
-        @if($errors->any())
-            <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         @if($invoice->isVoid())
             <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 text-xs">
                 ⚠️ <strong>FAKTUR DIBATALKAN (VOID):</strong> Invoice ini telah dibatalkan pada {{ $invoice->voided_at?->format('d-m-Y H:i') }} oleh {{ $invoice->voidedBy?->name ?? 'Admin' }}.

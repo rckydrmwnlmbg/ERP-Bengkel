@@ -49,7 +49,7 @@
                 <span class="text-xs text-slate-500">Berdasarkan selisih hari tanggal jatuh tempo (due date)</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                <!-- Belum Jatuh Tempo -->
+                {{-- Belum Jatuh Tempo --}}
                 <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
                     <span class="text-[11px] font-bold text-emerald-800 uppercase block">Belum Jatuh Tempo (≤0)</span>
                     <div class="text-lg font-black font-mono text-slate-900 mt-1">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
 
-                <!-- 1 - 30 Hari -->
+                {{-- 1 - 30 Hari --}}
                 <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50">
                     <span class="text-[11px] font-bold text-amber-800 uppercase block">1 – 30 Hari</span>
                     <div class="text-lg font-black font-mono text-amber-900 mt-1">
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <!-- 31 - 60 Hari -->
+                {{-- 31 - 60 Hari --}}
                 <div class="p-4 rounded-xl border border-orange-200 bg-orange-50/50">
                     <span class="text-[11px] font-bold text-orange-800 uppercase block">31 – 60 Hari</span>
                     <div class="text-lg font-black font-mono text-orange-900 mt-1">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
 
-                <!-- 61 - 90 Hari -->
+                {{-- 61 - 90 Hari --}}
                 <div class="p-4 rounded-xl border border-red-200 bg-red-50/40">
                     <span class="text-[11px] font-bold text-red-800 uppercase block">61 – 90 Hari</span>
                     <div class="text-lg font-black font-mono text-red-900 mt-1">
@@ -81,7 +81,7 @@
                     </div>
                 </div>
 
-                <!-- > 90 Hari -->
+                {{-- > 90 Hari --}}
                 <div class="p-4 rounded-xl border border-red-300 bg-red-100/50">
                     <span class="text-[11px] font-bold text-red-900 uppercase block">&gt; 90 Hari (Macet)</span>
                     <div class="text-lg font-black font-mono text-red-950 mt-1">

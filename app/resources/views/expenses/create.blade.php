@@ -13,16 +13,6 @@
 
     <div class="max-w-2xl mx-auto">
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-            @if($errors->any())
-                <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-                    <ul class="list-disc list-inside space-y-1">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <form method="POST" action="{{ route('expenses.store') }}" class="space-y-5">
                 @csrf
 

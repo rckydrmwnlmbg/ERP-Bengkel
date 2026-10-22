@@ -12,16 +12,6 @@
     </x-slot>
 
     <div class="max-w-3xl mx-auto space-y-6">
-        @if($errors->any())
-            <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200"
              x-data="{
                  subtotal: {{ $workOrder->calculateTotal() }},
