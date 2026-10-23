@@ -74,7 +74,7 @@
                     </table>
                 </div>
                 <p class="text-[11px] text-slate-400 mt-1.5 italic">
-                    * Catatan: Sesuai BR-I4, penerbitan invoice dari order servis menyalin rincian item pekerjaan dan snapshot HPP tanpa memotong stok gudang kembali.
+                    * Catatan: Sesuai BR-I4, penerbitan invoice dari order servis menyalin rincian item pekerjaan @can('view-cost-price')dan snapshot HPP @endcan tanpa memotong stok gudang kembali.
                 </p>
             </div>
 

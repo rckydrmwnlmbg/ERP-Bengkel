@@ -3,7 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -50,5 +52,41 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+    }
+
+    public function test_login_rate_limiting_locks_out_after_five_failed_attempts(): void
+    {
+        Event::fake([Lockout::class]);
+
+        $user = User::factory()->create([
+            'email' => 'ratelimit@bengkel.com',
+            'password' => bcrypt('correct-password'),
+        ]);
+
+        // Kirim 5 request salah berturut-turut
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->post('/login', [
+                'email' => 'ratelimit@bengkel.com',
+                'password' => 'wrong-secret-password',
+            ]);
+            $response->assertSessionHasErrors('email');
+            $this->assertGuest();
+        }
+
+        // Request ke-6 harus memicu rate limit lockout
+        $sixthResponse = $this->post('/login', [
+            'email' => 'ratelimit@bengkel.com',
+            'password' => 'wrong-secret-password',
+        ]);
+
+        $sixthResponse->assertSessionHasErrors('email');
+        $errorMessage = session('errors')->first('email');
+
+        // Pastikan pesan throttle muncul dalam bahasa Indonesia dan bukan kunci mentah
+        $this->assertStringContainsString('Terlalu banyak percobaan masuk', $errorMessage);
+        $this->assertStringNotContainsString('auth.throttle', $errorMessage);
+
+        // Pastikan event Lockout dipicu
+        Event::assertDispatched(Lockout::class);
     }
 }

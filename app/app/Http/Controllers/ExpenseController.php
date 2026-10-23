@@ -73,6 +73,8 @@ class ExpenseController extends Controller
      */
     public function store(StoreExpenseRequest $request): RedirectResponse
     {
+        Gate::authorize('expenses.manage');
+
         $validated = $request->validated();
         $validated['created_by'] = $request->user()->id;
 
@@ -108,6 +110,8 @@ class ExpenseController extends Controller
      */
     public function update(UpdateExpenseRequest $request, Expense $expense): RedirectResponse
     {
+        Gate::authorize('expenses.manage');
+
         $oldValues = $expense->only(['expense_date', 'category', 'amount', 'description']);
         $validated = $request->validated();
 

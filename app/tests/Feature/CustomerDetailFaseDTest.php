@@ -31,7 +31,7 @@ class CustomerDetailFaseDTest extends TestCase
      */
     public function test_customer_receivables_equals_receivables_report_for_all_seeded_customers(): void
     {
-        Artisan::call('seed:demo');
+        Artisan::call('seed:demo', ['--fresh' => true]);
         $baseDate = Carbon::parse('2026-10-20');
         Carbon::setTestNow($baseDate);
 
@@ -86,7 +86,7 @@ class CustomerDetailFaseDTest extends TestCase
      */
     public function test_no_n_plus_one_queries_on_customer_show_page(): void
     {
-        Artisan::call('seed:demo');
+        Artisan::call('seed:demo', ['--fresh' => true]);
         $baseDate = Carbon::parse('2026-10-20');
         Carbon::setTestNow($baseDate);
 
