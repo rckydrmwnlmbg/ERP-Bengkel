@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-        $adminPassword = env('ADMIN_PASSWORD', 'password123');
+        $adminEmail = env('ADMIN_EMAIL', 'admin@bengkel.com');
+        $adminPassword = env('ADMIN_PASSWORD', 'password');
 
         User::firstOrCreate(
             ['email' => $adminEmail],
@@ -32,20 +32,20 @@ class DatabaseSeeder extends Seeder
         );
 
         User::firstOrCreate(
-            ['email' => 'cashier@example.com'],
+            ['email' => 'kasir@bengkel.com'],
             [
                 'name' => 'Kasir Demo',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'cashier',
                 'is_active' => true,
             ]
         );
 
         User::firstOrCreate(
-            ['email' => 'mechanic@example.com'],
+            ['email' => 'mekanik1@bengkel.com'],
             [
                 'name' => 'Mekanik Demo',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'mechanic',
                 'is_active' => true,
             ]

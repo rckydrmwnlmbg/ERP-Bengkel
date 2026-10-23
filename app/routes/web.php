@@ -50,14 +50,12 @@ Route::get('/db-init', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $log[] = 'Migrate: ' . trim(\Illuminate\Support\Facades\Artisan::output());
 
-        // 2. Buat akun demo utama (admin, kasir, mekanik)
+        // 2. Buat akun demo utama (admin, kasir, mekanik) sesuai README
         $demoUsers = [
-            ['name' => 'Administrator Demo', 'email' => 'admin@erp.test', 'password' => 'password', 'role' => 'admin'],
-            ['name' => 'Siti Kasir', 'email' => 'kasir@erp.test', 'password' => 'password', 'role' => 'cashier'],
-            ['name' => 'Budi Mekanik', 'email' => 'mekanik1@erp.test', 'password' => 'password', 'role' => 'mechanic'],
-            ['name' => 'Admin Bengkel', 'email' => 'admin@bengkel.com', 'password' => 'password', 'role' => 'admin'],
-            ['name' => 'Kasir Bengkel', 'email' => 'kasir@bengkel.com', 'password' => 'password', 'role' => 'cashier'],
-            ['name' => 'Admin Example', 'email' => 'admin@example.com', 'password' => 'password123', 'role' => 'admin'],
+            ['name' => 'Administrator Demo', 'email' => 'admin@bengkel.com', 'password' => 'password', 'role' => 'admin'],
+            ['name' => 'Siti Kasir', 'email' => 'kasir@bengkel.com', 'password' => 'password', 'role' => 'cashier'],
+            ['name' => 'Budi Mekanik Senior', 'email' => 'mekanik1@bengkel.com', 'password' => 'password', 'role' => 'mechanic'],
+            ['name' => 'Agus Mekanik Hidrolik', 'email' => 'mekanik2@bengkel.com', 'password' => 'password', 'role' => 'mechanic'],
         ];
 
         foreach ($demoUsers as $u) {
@@ -86,9 +84,9 @@ Route::get('/db-init', function () {
             'user_count' => $userCount,
             'log' => $log,
             'credentials' => [
-                'Admin' => 'admin@erp.test / password',
-                'Kasir' => 'kasir@erp.test / password',
-                'Mekanik' => 'mekanik1@erp.test / password',
+                'Admin' => 'admin@bengkel.com / password',
+                'Kasir' => 'kasir@bengkel.com / password',
+                'Mekanik' => 'mekanik1@bengkel.com / password',
             ],
             'next' => 'Silakan buka https://erp-bengkel-beta.vercel.app/login dan login!',
         ]);
