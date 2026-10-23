@@ -31,6 +31,54 @@
     </x-slot>
 
     <div class="space-y-8">
+        <!-- Ringkasan Finansial & Operasional (BR-R8) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Piutang (BR-R8)</span>
+                    <p class="text-2xl font-bold font-mono text-slate-900 mt-2" data-testid="total-receivable">
+                        Rp {{ number_format($totalReceivable, 0, ',', '.') }}
+                    </p>
+                    <p class="text-xs {{ $totalReceivable > 0 ? 'text-rose-600 font-semibold' : 'text-emerald-600 font-semibold' }} mt-1">
+                        {{ $totalReceivable > 0 ? 'Sesuai Laporan Piutang' : 'Tidak ada tunggakan piutang' }}
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-lg {{ $totalReceivable > 0 ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }} flex items-center justify-center font-bold text-lg">
+                    💰
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jumlah Invoice Terbuka</span>
+                    <p class="text-2xl font-bold font-mono text-slate-900 mt-2" data-testid="open-invoices-count">
+                        {{ $openInvoicesCount }}
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">
+                        {{ $openInvoicesCount > 0 ? 'Faktur belum lunas / sebagian' : 'Semua faktur telah lunas' }}
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center font-bold text-lg">
+                    📄
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-start justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Transaksi 12 Bulan</span>
+                    <p class="text-2xl font-bold font-mono text-slate-900 mt-2" data-testid="total-transactions-12m">
+                        Rp {{ number_format($totalTransactions12m, 0, ',', '.') }}
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Akumulasi faktur 12 bulan terakhir
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-bold text-lg">
+                    📊
+                </div>
+            </div>
+        </div>
+
         <!-- Customer Details Card -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Informasi Profil Pelanggan</h3>
@@ -68,6 +116,224 @@
                     <p class="text-sm text-slate-700 mt-0.5">{{ $customer->notes ?: '-' }}</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Section: Riwayat Order Servis dan Invoice (BR-R8, Fase D) -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="font-bold text-base text-slate-900">Riwayat Order Servis & Invoice</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar riwayat Surat Perintah Kerja (WO) dan Faktur Tagihan (Invoice) terurut dari yang terbaru.</p>
+                </div>
+                <div class="text-xs font-semibold text-slate-500 font-mono">
+                    Total: {{ $paginatedHistory->total() }} Transaksi
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" data-testid="table-history">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                            <th class="py-3 px-3">Nomor</th>
+                            <th class="py-3 px-3">Tanggal</th>
+                            <th class="py-3 px-3">Jenis</th>
+                            <th class="py-3 px-3 text-right">Total</th>
+                            <th class="py-3 px-3 text-right">Sisa</th>
+                            <th class="py-3 px-3 text-center">Status</th>
+                            <th class="py-3 px-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs">
+                        @forelse($paginatedHistory as $row)
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-3 font-mono font-bold text-amber-600 hover:text-amber-800">
+                                    <a href="{{ $row->url }}">{{ $row->number }}</a>
+                                </td>
+                                <td class="py-3 px-3 text-slate-700 whitespace-nowrap">
+                                    {{ $row->date ? \Carbon\Carbon::parse($row->date)->translatedFormat('d M Y') : '-' }}
+                                </td>
+                                <td class="py-3 px-3 whitespace-nowrap">
+                                    @if($row->type === 'work_order')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                                            Order Servis
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            Invoice
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 whitespace-nowrap">
+                                    Rp {{ number_format($row->total, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono whitespace-nowrap">
+                                    @if($row->remaining !== null)
+                                        <span class="{{ $row->remaining > 0 ? 'text-rose-600 font-bold' : 'text-slate-500' }}">
+                                            Rp {{ number_format($row->remaining, 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 italic">Belum Ditagih</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-3 text-center whitespace-nowrap">
+                                    @if($row->type === 'work_order')
+                                        @switch($row->status)
+                                            @case('open')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">Baru</span>
+                                                @break
+                                            @case('in_progress')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">Diproses</span>
+                                                @break
+                                            @case('completed')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">Selesai</span>
+                                                @break
+                                            @case('cancelled')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-100 text-red-700">Dibatalkan</span>
+                                                @break
+                                            @default
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">{{ $row->status }}</span>
+                                        @endswitch
+                                    @else
+                                        @switch($row->status)
+                                            @case('issued')
+                                            @case('unpaid')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">Belum Lunas</span>
+                                                @break
+                                            @case('partially_paid')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">Sebagian</span>
+                                                @break
+                                            @case('paid')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">Lunas</span>
+                                                @break
+                                            @case('void')
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-600 line-through">Void</span>
+                                                @break
+                                            @default
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">{{ $row->status }}</span>
+                                        @endswitch
+                                    @endif
+                                </td>
+                                <td class="py-3 px-3 text-right whitespace-nowrap">
+                                    <a href="{{ $row->url }}" class="inline-flex items-center text-xs font-bold text-amber-600 hover:text-amber-800 transition">
+                                        Detail &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-8 text-center text-slate-400">
+                                    Belum ada riwayat order servis atau invoice untuk pelanggan ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($paginatedHistory->hasPages())
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $paginatedHistory->links() }}
+                </div>
+            @endif
+        </div>
+
+        <!-- Section: Riwayat Pembayaran (BR-R8, Fase D) -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="font-bold text-base text-slate-900">Riwayat Pembayaran</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar seluruh penerimaan pembayaran piutang dari pelanggan ini.</p>
+                </div>
+                <div class="text-xs font-semibold text-slate-500 font-mono">
+                    Total: {{ $payments->total() }} Pembayaran
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" data-testid="table-payments">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                            <th class="py-3 px-3">Tanggal Bayar</th>
+                            <th class="py-3 px-3">No. Invoice</th>
+                            <th class="py-3 px-3">Metode</th>
+                            <th class="py-3 px-3">Referensi</th>
+                            <th class="py-3 px-3 text-right">Jumlah Bayar</th>
+                            <th class="py-3 px-3">Dicatat Oleh</th>
+                            <th class="py-3 px-3 text-center">Status</th>
+                            <th class="py-3 px-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs">
+                        @forelse($payments as $payment)
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-3 text-slate-700 whitespace-nowrap font-mono">
+                                    {{ $payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->translatedFormat('d M Y') : '-' }}
+                                </td>
+                                <td class="py-3 px-3 font-mono font-bold text-amber-600 hover:text-amber-800 whitespace-nowrap">
+                                    @if($payment->invoice)
+                                        <a href="{{ route('invoices.show', $payment->invoice) }}">{{ $payment->invoice->invoice_number }}</a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="py-3 px-3 text-slate-800 whitespace-nowrap">
+                                    @switch($payment->method)
+                                        @case('cash')
+                                            💵 Tunai
+                                            @break
+                                        @case('transfer')
+                                            🏦 Transfer
+                                            @break
+                                        @default
+                                            {{ ucfirst(str_replace('_', ' ', $payment->method)) }}
+                                    @endswitch
+                                </td>
+                                <td class="py-3 px-3 text-slate-500 font-mono">
+                                    {{ $payment->reference ?: '-' }}
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">
+                                    Rp {{ number_format($payment->amount, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-3 text-slate-600 whitespace-nowrap">
+                                    {{ $payment->creator?->name ?: '-' }}
+                                </td>
+                                <td class="py-3 px-3 text-center whitespace-nowrap">
+                                    @if($payment->status === 'valid')
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                                            Valid
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
+                                            Batal (Void)
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-3 text-right whitespace-nowrap">
+                                    @if($payment->invoice)
+                                        <a href="{{ route('invoices.show', $payment->invoice) }}" class="inline-flex items-center text-xs font-bold text-amber-600 hover:text-amber-800 transition">
+                                            Detail Invoice &rarr;
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="py-8 text-center text-slate-400">
+                                    Belum ada riwayat pembayaran yang tercatat untuk pelanggan ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($payments->hasPages())
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $payments->links() }}
+                </div>
+            @endif
         </div>
 
         <!-- Section 1: Armada Unit Alat Berat -->

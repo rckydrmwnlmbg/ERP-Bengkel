@@ -188,15 +188,20 @@ class ReportService
      * - Aging berdasarkan hari_lewat = tanggal_laporan − due_date (BR-R7):
      *   belum jatuh tempo (≤0), 1–30, 31–60, 61–90, >90 hari.
      */
-    public function getReceivablesReport(?string $asOfDate = null): array
+    public function getReceivablesReport(?string $asOfDate = null, ?int $customerId = null): array
     {
         $reportDate = $asOfDate ? Carbon::parse($asOfDate)->startOfDay() : Carbon::today();
 
         // Ambil semua invoice non-void yang terbit sebelum atau pada tanggal laporan
-        $invoices = Invoice::with(['customer', 'validPayments'])
+        $query = Invoice::with(['customer', 'validPayments'])
             ->where('status', '!=', 'void')
-            ->whereDate('issue_date', '<=', $reportDate->toDateString())
-            ->get();
+            ->whereDate('issue_date', '<=', $reportDate->toDateString());
+
+        if ($customerId) {
+            $query->where('customer_id', $customerId);
+        }
+
+        $invoices = $query->get();
 
         $unpaidInvoices = collect();
         $totalReceivables = 0;
@@ -249,7 +254,12 @@ class ReportService
         }
 
         // BR-R6: Rekap per customer
-        $customerSummary = Customer::all()->map(function (Customer $cust) use ($unpaidInvoices) {
+        $customersQuery = Customer::query();
+        if ($customerId) {
+            $customersQuery->where('id', $customerId);
+        }
+
+        $customerSummary = $customersQuery->get()->map(function (Customer $cust) use ($unpaidInvoices) {
             $custInvoices = $unpaidInvoices->where('customer_id', $cust->id);
             $total = (int) $custInvoices->sum('calculated_remaining');
 
@@ -269,6 +279,22 @@ class ReportService
             'aging' => $aging,
             'customer_summary' => $customerSummary,
             'unpaid_invoices' => $unpaidInvoices->sortBy('due_date')->values(),
+        ];
+    }
+
+    /**
+     * BR-R8: Mengambil ringkasan piutang customer spesifik menggunakan fungsi getReceivablesReport yang sama.
+     */
+    public function getCustomerReceivables(Customer|int $customer, ?string $asOfDate = null): array
+    {
+        $customerId = $customer instanceof Customer ? $customer->id : $customer;
+        $report = $this->getReceivablesReport($asOfDate, $customerId);
+
+        return [
+            'total_receivable' => (int) $report['total_receivables'],
+            'open_invoices_count' => (int) $report['unpaid_invoices']->count(),
+            'unpaid_invoices' => $report['unpaid_invoices'],
+            'aging' => $report['aging'],
         ];
     }
 
