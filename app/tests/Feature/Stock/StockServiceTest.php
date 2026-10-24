@@ -112,7 +112,138 @@ class StockServiceTest extends TestCase
      * Dua request paralel mengambil stok terakhir (stok 1): satu sukses, satu ditolak, stok akhir 0.
      * Menguji akses paralel nyata (real concurrency) menggunakan proses terpisah dan row lock.
      */
+    /**
+     * T-08 (BR-S8)
+     * Dua request paralel mengambil stok terakhir (stok 1): satu sukses, satu ditolak, stok akhir 0.
+     * Menguji akses paralel nyata (real concurrency) menggunakan database yang mendukung row lock
+     * (Postgres/MySQL, bukan SQLite in-memory) dan dijalankan dengan proses paralel sungguhan.
+     */
     public function test_t08_br_s8_parallel_row_lock_concurrency(): void
+    {
+        // 1. Cek ketersediaan koneksi Postgres atau MySQL yang aktif
+        $supportedConnections = ['pgsql', 'mysql'];
+        $connName = null;
+
+        foreach ($supportedConnections as $candidate) {
+            try {
+                $conn = DB::connection($candidate);
+                $conn->getPdo();
+                $connName = $candidate;
+                break;
+            } catch (\Throwable $e) {
+                // Koneksi tidak dapat dibuka
+            }
+        }
+
+        if (! $connName) {
+            $this->markTestSkipped('Tes T-08 (BR-S8) mensyaratkan database dengan dukungan native row lock (Postgres/MySQL, bukan SQLite in-memory). Di lingkungan lokal/sandbox saat ini, layanan server Postgres/MySQL tidak aktif/tersedia sehingga pengujian multi-proses paralel row lock ini dilewati (skipped).');
+        }
+
+        $connection = DB::connection($connName);
+
+        // Buat part dengan stok = 1 pada database row lock
+        $partId = $connection->table('parts')->insertGetId([
+            'sku' => 'SP-T08-ROWLOCK-' . uniqid(),
+            'name' => 'Seal O-Ring Terakhir RowLock',
+            'category' => 'Seal',
+            'unit' => 'Pcs',
+            'sell_price' => 50000,
+            'avg_cost' => 30000,
+            'qty_on_hand' => 1,
+            'min_stock' => 0,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $connection->table('stock_movements')->insert([
+            'part_id' => $partId,
+            'type' => 'PURCHASE_IN',
+            'qty_change' => 1,
+            'unit_cost_snapshot' => 30000,
+            'balance_after' => 1,
+            'reason' => 'Stok awal T-08',
+            'created_at' => now(),
+        ]);
+
+        $workerScript = '/tmp/t08_pg_worker_' . uniqid() . '.php';
+        $scriptContent = <<<'WORKER'
+<?php
+$basePath = $argv[4];
+require $basePath . '/vendor/autoload.php';
+$app = require_once $basePath . '/bootstrap/app.php';
+$kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+
+$connName = $argv[1];
+$partId = (int) $argv[2];
+$workerId = $argv[3];
+
+config(['database.default' => $connName]);
+\Illuminate\Support\Facades\DB::purge();
+
+$stockService = app(\App\Services\StockService::class);
+
+try {
+    $stockService->recordServiceOut($partId, 1);
+    file_put_contents("/tmp/t08_pg_res_{$workerId}.txt", "SUCCESS");
+    exit(0);
+} catch (\App\Exceptions\InsufficientStockException $e) {
+    file_put_contents("/tmp/t08_pg_res_{$workerId}.txt", "REJECTED");
+    exit(2);
+} catch (\Throwable $e) {
+    file_put_contents("/tmp/t08_pg_res_{$workerId}.txt", "ERROR: " . $e->getMessage());
+    exit(1);
+}
+WORKER;
+        file_put_contents($workerScript, $scriptContent);
+
+        $logA = "/tmp/t08_pg_res_workerA.txt";
+        $logB = "/tmp/t08_pg_res_workerB.txt";
+        @unlink($logA);
+        @unlink($logB);
+
+        $appPath = base_path();
+        $cmdA = "php {$workerScript} '{$connName}' {$partId} workerA '{$appPath}'";
+        $cmdB = "php {$workerScript} '{$connName}' {$partId} workerB '{$appPath}'";
+
+        $procA = proc_open($cmdA, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipesA, '/root/ERP/app');
+        $procB = proc_open($cmdB, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipesB, '/root/ERP/app');
+
+        $outA = stream_get_contents($pipesA[1]);
+        $errA = stream_get_contents($pipesA[2]);
+        $outB = stream_get_contents($pipesB[1]);
+        $errB = stream_get_contents($pipesB[2]);
+
+        $exitCodeA = proc_close($procA);
+        $exitCodeB = proc_close($procB);
+
+        $resA = file_exists($logA) ? trim(file_get_contents($logA)) : "MISSING_A (Exit: {$exitCodeA}, Err: {$errA}, Out: {$outA})";
+        $resB = file_exists($logB) ? trim(file_get_contents($logB)) : "MISSING_B (Exit: {$exitCodeB}, Err: {$errB}, Out: {$outB})";
+
+        @unlink($workerScript);
+        @unlink($logA);
+        @unlink($logB);
+
+        $results = [$resA, $resB];
+        $this->assertContains('SUCCESS', $results, 'Satu request harus sukses mengambil stok terakhir.');
+        $this->assertContains('REJECTED', $results, 'Satu request harus ditolak karena stok habis (BR-S8).');
+
+        $successCount = count(array_filter($results, fn ($r) => $r === 'SUCCESS'));
+        $rejectedCount = count(array_filter($results, fn ($r) => $r === 'REJECTED'));
+        $this->assertEquals(1, $successCount, 'Tepat satu proses paralel harus sukses.');
+        $this->assertEquals(1, $rejectedCount, 'Tepat satu proses paralel harus ditolak.');
+
+        $finalPart = $connection->table('parts')->where('id', $partId)->first();
+        $this->assertEquals(0, $finalPart->qty_on_hand, 'Stok akhir part harus tepat 0 (BR-S8).');
+    }
+
+    /**
+     * Uji konkurensi paralel SQLite WAL fallback:
+     * Menjalankan dua proses paralel nyata pada database SQLite berberkas (WAL mode)
+     * untuk membuktikan mekanisme penanganan race condition (1 sukses, 1 ditolak, stok akhir 0).
+     */
+    public function test_parallel_row_lock_concurrency_sqlite_wal_fallback(): void
     {
         $tempDb = '/tmp/t08_concurrent_' . uniqid() . '.sqlite';
         @touch($tempDb);
@@ -282,35 +413,62 @@ WORKER;
         $parts = [$partA, $partB];
         mt_srand(42); // Seed konstan agar deterministik
 
+        $activeServiceOuts = [];
+        $activeSaleOuts = [];
+
         for ($i = 0; $i < 200; $i++) {
             /** @var Part $currentPart */
             $currentPart = $parts[$i % 2];
             $currentPart->refresh();
 
-            $action = mt_rand(1, 4);
+            $action = mt_rand(1, 6);
 
             switch ($action) {
-                case 1: // Pembelian masuk
+                case 1: // Pembelian masuk (PURCHASE_IN)
                     $inQty = mt_rand(1, 15);
                     $inCost = mt_rand(50000, 150000);
                     $this->stockService->recordPurchaseIn($currentPart->id, $inQty, $inCost);
                     break;
 
-                case 2: // Pemakaian servis keluar
+                case 2: // Pemakaian servis keluar (SERVICE_OUT)
                     $outQty = mt_rand(1, 10);
                     if ($currentPart->qty_on_hand >= $outQty) {
-                        $this->stockService->recordServiceOut($currentPart->id, $outQty, $i + 1);
+                        $m = $this->stockService->recordServiceOut($currentPart->id, $outQty, $i + 1);
+                        $activeServiceOuts[] = [
+                            'part_id' => $currentPart->id,
+                            'qty' => $outQty,
+                            'snapshot' => $m->unit_cost_snapshot,
+                        ];
                     }
                     break;
 
-                case 3: // Penjualan langsung keluar
+                case 3: // Pengembalian servis (SERVICE_RETURN)
+                    if (! empty($activeServiceOuts)) {
+                        $item = array_pop($activeServiceOuts);
+                        $this->stockService->recordServiceReturn($item['part_id'], $item['qty'], $item['snapshot'], $i + 1);
+                    }
+                    break;
+
+                case 4: // Penjualan langsung keluar (SALE_OUT)
                     $saleQty = mt_rand(1, 8);
                     if ($currentPart->qty_on_hand >= $saleQty) {
-                        $this->stockService->recordSaleOut($currentPart->id, $saleQty, $i + 1);
+                        $m = $this->stockService->recordSaleOut($currentPart->id, $saleQty, $i + 1);
+                        $activeSaleOuts[] = [
+                            'part_id' => $currentPart->id,
+                            'qty' => $saleQty,
+                            'snapshot' => $m->unit_cost_snapshot,
+                        ];
                     }
                     break;
 
-                case 4: // Penyesuaian opname (tambah atau kurang)
+                case 5: // Retur penjualan langsung (SALE_RETURN)
+                    if (! empty($activeSaleOuts)) {
+                        $item = array_pop($activeSaleOuts);
+                        $this->stockService->recordSaleReturn($item['part_id'], $item['qty'], $item['snapshot'], $i + 1);
+                    }
+                    break;
+
+                case 6: // Penyesuaian opname (tambah atau kurang)
                     if (mt_rand(0, 1) === 1) {
                         $adjQty = mt_rand(1, 5);
                         $this->stockService->recordAdjustment($currentPart->id, 'ADJUSTMENT_IN', $adjQty, "Opname random {$i}");

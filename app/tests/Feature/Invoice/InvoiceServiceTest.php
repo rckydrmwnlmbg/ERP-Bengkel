@@ -633,4 +633,238 @@ WORKER;
             'Nomor invoice tidak boleh ada yang duplikat saat dibuat secara paralel (BR-I1): ' . implode(', ', $allNumbers)
         );
     }
+
+    /**
+     * Memastikan nomor invoice dan nomor WO tidak pernah terpakai ulang (termasuk setelah void / pembatalan).
+     */
+    public function test_invoice_number_and_wo_number_never_reused_including_after_void(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-24 10:00:00'));
+
+        // 1. Buat WO pertama
+        $wo1 = $this->workOrderService->createWorkOrder([
+            'customer_id' => $this->customerMaju->id,
+            'equipment_unit_id' => $this->unitMaju->id,
+            'complaint' => 'Servis rutin 1',
+        ], $this->admin->id);
+        $woNum1 = $wo1->wo_number;
+
+        // Pasang item dan selesaikan WO-1
+        $this->workOrderService->addPartItem($wo1, $this->filterOli->id, 1);
+        $this->workOrderService->transitionStatus($wo1, 'in_progress', $this->admin->id);
+        $this->workOrderService->transitionStatus($wo1, 'completed', $this->admin->id);
+
+        // Terbitkan invoice pertama dari WO-1
+        $inv1 = $this->invoiceService->createFromWorkOrder($wo1, [
+            'issue_date' => '2026-10-24',
+        ], $this->cashier->id);
+        $invNum1 = $inv1->invoice_number;
+
+        // Void invoice pertama
+        $this->invoiceService->voidInvoice($inv1, 'Void untuk uji nomor urut', $this->admin->id);
+        $this->assertEquals('void', $inv1->fresh()->status);
+
+        // 2. Buat WO kedua
+        $wo2 = $this->workOrderService->createWorkOrder([
+            'customer_id' => $this->customerMaju->id,
+            'equipment_unit_id' => $this->unitMaju->id,
+            'complaint' => 'Servis rutin 2',
+        ], $this->admin->id);
+        $woNum2 = $wo2->wo_number;
+
+        // Nomor WO kedua tidak boleh sama dengan WO pertama yang sudah pernah dipakai
+        $this->assertNotEquals($woNum1, $woNum2, 'Nomor WO kedua tidak boleh menggunakan nomor WO pertama.');
+
+        // Batalkan WO kedua
+        $this->workOrderService->transitionStatus($wo2, 'cancelled', $this->admin->id);
+        $this->assertEquals('cancelled', $wo2->fresh()->status);
+
+        // 3. Buat WO ketiga (setelah WO-2 dibatalkan)
+        $wo3 = $this->workOrderService->createWorkOrder([
+            'customer_id' => $this->customerMaju->id,
+            'equipment_unit_id' => $this->unitMaju->id,
+            'complaint' => 'Servis rutin 3',
+        ], $this->admin->id);
+        $woNum3 = $wo3->wo_number;
+
+        // Nomor WO ketiga tidak boleh memakai ulang nomor WO-1 maupun nomor WO-2 yang dibatalkan
+        $this->assertNotEquals($woNum1, $woNum3);
+        $this->assertNotEquals($woNum2, $woNum3);
+
+        // 4. Terbitkan Invoice kedua (penjualan langsung) setelah Invoice-1 divoid
+        $inv2 = $this->invoiceService->createDirectSale([
+            'customer_id' => $this->customerMaju->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 1],
+            ],
+        ], $this->cashier->id);
+        $invNum2 = $inv2->invoice_number;
+
+        // Nomor Invoice kedua tidak boleh menggunakan nomor invoice pertama yang divoid!
+        $this->assertNotEquals($invNum1, $invNum2, 'Nomor invoice kedua tidak boleh memakai ulang nomor invoice pertama yang telah divoid (BR-I1).');
+
+        // 5. Terbitkan Invoice ketiga
+        $inv3 = $this->invoiceService->createDirectSale([
+            'customer_id' => $this->customerMaju->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 1],
+            ],
+        ], $this->cashier->id);
+        $invNum3 = $inv3->invoice_number;
+
+        // Void Invoice ketiga
+        $this->invoiceService->voidInvoice($inv3, 'Void invoice ketiga', $this->admin->id);
+
+        // 6. Terbitkan Invoice keempat
+        $inv4 = $this->invoiceService->createDirectSale([
+            'customer_id' => $this->customerMaju->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 1],
+            ],
+        ], $this->cashier->id);
+        $invNum4 = $inv4->invoice_number;
+
+        // Pastikan nomor Invoice keempat tidak mendaur ulang nomor invoice ketiga yang divoid
+        $this->assertNotEquals($invNum3, $invNum4);
+
+        // Seluruh 4 invoice dan 3 work order harus memiliki nomor unik dan tersimpan di database
+        $allInvoiceNumbers = [$invNum1, $invNum2, $invNum3, $invNum4];
+        $this->assertCount(4, array_unique($allInvoiceNumbers));
+
+        $allWoNumbers = [$woNum1, $woNum2, $woNum3];
+        $this->assertCount(3, array_unique($allWoNumbers));
+
+        Carbon::setTestNow();
+    }
+
+    /**
+     * Memastikan aksi void pada suatu invoice tidak mengubah nilai atau status invoice lainnya.
+     */
+    public function test_voiding_an_invoice_does_not_modify_or_affect_other_invoices(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-24 10:00:00'));
+
+        $customerB = Customer::create([
+            'code' => 'CUST-B',
+            'name' => 'PT Mandiri Perkasa B',
+            'type' => 'company',
+            'payment_term_days' => 14,
+        ]);
+
+        // Invoice 1 (Customer Maju): Penjualan langsung 2 unit Filter Oli = 300.000.
+        // Dibayar sebagian 100.000 -> status partially_paid, sisa 200.000.
+        $invA = $this->invoiceService->createDirectSale([
+            'customer_id' => $this->customerMaju->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 2],
+            ],
+        ], $this->cashier->id);
+
+        $this->paymentService->recordPayment($invA, [
+            'amount' => 100000,
+            'paid_at' => '2026-10-24',
+            'method' => 'cash',
+        ], $this->cashier->id);
+
+        $invA->refresh();
+        $this->assertEquals('partially_paid', $invA->status);
+        $this->assertEquals(200000, $invA->remainingBalance());
+
+        // Invoice 2 (Customer B): Penjualan langsung 3 unit Filter Oli = 450.000.
+        // Belum ada pembayaran -> status issued, sisa 450.000.
+        $invB = $this->invoiceService->createDirectSale([
+            'customer_id' => $customerB->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 3],
+            ],
+        ], $this->cashier->id);
+
+        $invB->refresh();
+        $this->assertEquals('issued', $invB->status);
+        $this->assertEquals(450000, $invB->remainingBalance());
+
+        // Invoice 3 (Customer Maju): Penjualan langsung 1 unit Filter Oli = 150.000.
+        // Dibayar lunas 150.000 -> status paid, sisa 0.
+        $invC = $this->invoiceService->createDirectSale([
+            'customer_id' => $this->customerMaju->id,
+            'issue_date' => '2026-10-24',
+            'items' => [
+                ['part_id' => $this->filterOli->id, 'qty' => 1],
+            ],
+        ], $this->cashier->id);
+
+        $this->paymentService->recordPayment($invC, [
+            'amount' => 150000,
+            'paid_at' => '2026-10-24',
+            'method' => 'transfer',
+        ], $this->cashier->id);
+
+        $invC->refresh();
+        $this->assertEquals('paid', $invC->status);
+        $this->assertEquals(0, $invC->remainingBalance());
+
+        // Ambil snapshot atribut Invoice A dan Invoice C sebelum void Invoice B
+        $invASnapshot = [
+            'status' => $invA->status,
+            'subtotal' => $invA->subtotal,
+            'discount_amount' => $invA->discount_amount,
+            'tax_amount' => $invA->tax_amount,
+            'total' => $invA->total,
+            'remaining' => $invA->remainingBalance(),
+            'valid_payments_count' => $invA->validPayments()->count(),
+            'valid_payments_sum' => (int) $invA->validPayments()->sum('amount'),
+        ];
+
+        $invCSnapshot = [
+            'status' => $invC->status,
+            'subtotal' => $invC->subtotal,
+            'discount_amount' => $invC->discount_amount,
+            'tax_amount' => $invC->tax_amount,
+            'total' => $invC->total,
+            'remaining' => $invC->remainingBalance(),
+            'valid_payments_count' => $invC->validPayments()->count(),
+            'valid_payments_sum' => (int) $invC->validPayments()->sum('amount'),
+        ];
+
+        // EKSEKUSI: Void Invoice B oleh Admin
+        $this->invoiceService->voidInvoice($invB, 'Customer B membatalkan pesanan', $this->admin->id);
+        $this->assertEquals('void', $invB->fresh()->status);
+
+        // VERIFIKASI: Invoice A tidak boleh berubah sama sekali
+        $invA->refresh();
+        $this->assertEquals($invASnapshot['status'], $invA->status, 'Status Invoice A tidak boleh berubah.');
+        $this->assertEquals($invASnapshot['subtotal'], $invA->subtotal);
+        $this->assertEquals($invASnapshot['total'], $invA->total);
+        $this->assertEquals($invASnapshot['remaining'], $invA->remainingBalance());
+        $this->assertEquals($invASnapshot['valid_payments_count'], $invA->validPayments()->count());
+        $this->assertEquals($invASnapshot['valid_payments_sum'], (int) $invA->validPayments()->sum('amount'));
+
+        // VERIFIKASI: Invoice C tidak boleh berubah sama sekali
+        $invC->refresh();
+        $this->assertEquals($invCSnapshot['status'], $invC->status, 'Status Invoice C tidak boleh berubah.');
+        $this->assertEquals($invCSnapshot['subtotal'], $invC->subtotal);
+        $this->assertEquals($invCSnapshot['total'], $invC->total);
+        $this->assertEquals($invCSnapshot['remaining'], $invC->remainingBalance());
+        $this->assertEquals($invCSnapshot['valid_payments_count'], $invC->validPayments()->count());
+        $this->assertEquals($invCSnapshot['valid_payments_sum'], (int) $invC->validPayments()->sum('amount'));
+
+        // VERIFIKASI PIUTANG: Piutang Customer Maju tetap 200.000, Piutang Customer B menjadi 0 (karena invB void)
+        $reportService = app(\App\Services\ReportService::class);
+        $receivables = $reportService->getReceivablesReport('2026-10-24');
+        $custSummary = collect($receivables['customer_summary']);
+
+        $majuRow = $custSummary->first(fn ($row) => $row['customer']->id === $this->customerMaju->id);
+        $this->assertNotNull($majuRow);
+        $this->assertEquals(200000, $majuRow['total_receivable'], 'Piutang PT Maju harus tetap 200.000.');
+
+        $bRow = $custSummary->first(fn ($row) => $row['customer']->id === $customerB->id);
+        $this->assertNull($bRow, 'Customer B tidak boleh memiliki piutang aktif karena satu-satunya faktur telah divoid.');
+
+        Carbon::setTestNow();
+    }
 }

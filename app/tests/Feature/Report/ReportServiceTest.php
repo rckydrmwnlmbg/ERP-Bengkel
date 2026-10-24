@@ -110,7 +110,7 @@ class ReportServiceTest extends TestCase
      * Total piutang di dashboard = total di laporan piutang = Σ piutang per customer.
      * Nilai harapan dihitung secara independen dari kode produksi.
      */
-    public function test_br_r8_consistency_dashboard_reports_and_customer_receivables(): void
+    public function test_t10_br_r8_consistency_dashboard_reports_and_customer_receivables(): void
     {
         $today = Carbon::parse('2026-10-20');
         Carbon::setTestNow($today);

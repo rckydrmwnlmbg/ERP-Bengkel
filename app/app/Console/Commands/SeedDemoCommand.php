@@ -516,7 +516,7 @@ class SeedDemoCommand extends Command
             ['m' => 4,  'year' => 2026, 'month' => 2,  'days' => 28, 'wo_count' => 8,  'cs_count' => 4],
             ['m' => 5,  'year' => 2026, 'month' => 3,  'days' => 31, 'wo_count' => 9,  'cs_count' => 5],
             ['m' => 6,  'year' => 2026, 'month' => 4,  'days' => 30, 'wo_count' => 9,  'cs_count' => 5],
-            ['m' => 7,  'year' => 2026, 'month' => 5,  'days' => 31, 'wo_count' => 10, 'cs_count' => 5],
+            ['m' => 7,  'year' => 2026, 'month' => 5,  'days' => 31, 'wo_count' => 10, 'cs_count' => 6],
             ['m' => 8,  'year' => 2026, 'month' => 6,  'days' => 30, 'wo_count' => 10, 'cs_count' => 5],
             ['m' => 9,  'year' => 2026, 'month' => 7,  'days' => 31, 'wo_count' => 11, 'cs_count' => 6],
             ['m' => 10, 'year' => 2026, 'month' => 8,  'days' => 31, 'wo_count' => 11, 'cs_count' => 6],
