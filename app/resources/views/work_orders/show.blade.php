@@ -102,7 +102,10 @@
                                     @csrf
                                     <input type="hidden" name="status" value="completed">
                                     <button type="submit" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                        <span>✅ Selesaikan Servis</span>
+                                        <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>Selesaikan Servis</span>
                                     </button>
                                 </form>
                             @endif
@@ -131,7 +134,11 @@
                     @if($workOrder->activeInvoice)
                         <div class="flex items-center">
                             <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                <span>👁️ Buka Faktur Invoice</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span>Buka Faktur Invoice</span>
                             </a>
                         </div>
                     @else
@@ -140,7 +147,10 @@
                                 <form action="{{ route('invoices.store-from-wo', $workOrder) }}" method="POST" class="w-full sm:w-auto">
                                     @csrf
                                     <button type="submit" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-white hover:bg-emerald-50 text-emerald-900 font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                        <span>📄 Terbitkan Invoice</span>
+                                        <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span>Terbitkan Invoice</span>
                                     </button>
                                 </form>
                             </div>
@@ -159,7 +169,11 @@
                     @if($workOrder->activeInvoice)
                         <div class="flex items-center">
                             <a href="{{ route('invoices.show', $workOrder->activeInvoice) }}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
-                                <span>👁️ Buka Faktur Invoice</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span>Buka Faktur Invoice</span>
                             </a>
                         </div>
                     @endif
@@ -243,7 +257,11 @@
             <div class="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
                 <div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center space-x-2">
-                        <span>🔧 Jasa & Tindakan Servis</span>
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>Jasa &amp; Tindakan Servis</span>
                         <span class="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">
                             {{ $workOrder->serviceItems->count() }}
                         </span>
@@ -374,7 +392,10 @@
             <div class="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
                 <div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center space-x-2">
-                        <span>📦 Penggunaan Sparepart / Bahan</span>
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span>Penggunaan Sparepart / Bahan</span>
                         <span class="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">
                             {{ $workOrder->partItems->count() }}
                         </span>

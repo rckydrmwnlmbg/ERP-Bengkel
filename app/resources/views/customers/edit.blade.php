@@ -37,8 +37,8 @@
                         </label>
                         <select name="type" id="type" required
                                 class="w-full text-sm rounded-lg border-slate-300 focus:border-amber-500 focus:ring-amber-500 @error('type') border-red-500 @enderror">
-                            <option value="company" {{ old('type', $customer->type) === 'company' ? 'selected' : '' }}>🏢 Perusahaan / Badan Usaha</option>
-                            <option value="individual" {{ old('type', $customer->type) === 'individual' ? 'selected' : '' }}>👤 Perorangan / Pribadi</option>
+                            <option value="company" {{ old('type', $customer->type) === 'company' ? 'selected' : '' }}>Perusahaan / Badan Usaha</option>
+                            <option value="individual" {{ old('type', $customer->type) === 'individual' ? 'selected' : '' }}>Perorangan / Pribadi</option>
                         </select>
                         @error('type')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>

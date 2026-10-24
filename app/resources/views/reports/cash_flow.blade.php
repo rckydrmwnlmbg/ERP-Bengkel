@@ -9,12 +9,18 @@
             </div>
             <div class="flex items-center space-x-2">
                 <a href="{{ route('reports.export-excel', ['type' => 'cash-flow', 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
-                   class="inline-flex items-center px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition">
-                    📊 Ekspor Excel
+                   class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Ekspor Excel</span>
                 </a>
                 <a href="{{ route('reports.print', ['type' => 'cash-flow', 'start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank"
-                   class="inline-flex items-center px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition">
-                    🖨️ Cetak / PDF
+                   class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Cetak / PDF</span>
                 </a>
             </div>
         </div>
@@ -22,8 +28,12 @@
 
     <div class="space-y-6">
         <!-- Catatan Penyederhanaan BR-R5 Alert -->
-        <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 shadow-sm flex items-start space-x-3">
-            <span class="text-xl">💡</span>
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 shadow-2xs flex items-start space-x-3">
+            <div class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
             <div>
                 <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">Catatan Penyederhanaan Aturan Bisnis (BR-R5)</h4>
                 <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">

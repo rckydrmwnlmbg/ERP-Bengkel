@@ -47,9 +47,16 @@
 
     <div class="space-y-6">
         @if($invoice->isVoid())
-            <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 text-xs">
-                ⚠️ <strong>FAKTUR DIBATALKAN (VOID):</strong> Invoice ini telah dibatalkan pada {{ $invoice->voided_at?->format('d-m-Y H:i') }} oleh {{ $invoice->voidedBy?->name ?? 'Admin' }}.
-                <br>Alasan: <em>"{{ $invoice->void_reason }}"</em>
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start space-x-3">
+                <div class="w-5 h-5 text-rose-600 shrink-0 mt-0.5">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <strong>FAKTUR DIBATALKAN (VOID):</strong> Invoice ini telah dibatalkan pada {{ $invoice->voided_at?->format('d-m-Y H:i') }} oleh {{ $invoice->voidedBy?->name ?? 'Admin' }}.
+                    <br>Alasan: <em>"{{ $invoice->void_reason }}"</em>
+                </div>
             </div>
         @endif
 
@@ -256,8 +263,11 @@
                 @can('payments.manage')
                     @if(!$invoice->isPaid() && !$invoice->isVoid())
                         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center space-x-1.5">
-                                <span>💳 Catat Pembayaran</span>
+                            <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span>Catat Pembayaran</span>
                             </h3>
 
                             <form method="POST" action="{{ route('invoices.payments.store', $invoice) }}" class="space-y-4">

@@ -13,8 +13,15 @@
 
     <div class="max-w-2xl mx-auto">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200">
-            <div class="mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-950 text-xs">
-                ⚠️ <strong>Aturan Bisnis (BR-S6):</strong> Penyesuaian stok opname fisik <strong>wajib menyertakan alasan</strong> yang jelas (misal: "Selisih opname fisik akhir bulan", "Barang rusak di gudang", atau "Koreksi salah hitung penerimaan") dan seluruh riwayat dicatat di audit log.
+            <div class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start space-x-3">
+                <div class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <strong>Aturan Sistem (BR-S6):</strong> Penyesuaian stok opname fisik <strong>wajib menyertakan alasan</strong> yang jelas (misal: "Selisih opname fisik akhir bulan", "Barang rusak di gudang", atau "Koreksi salah hitung penerimaan") dan seluruh riwayat dicatat di audit log.
+                </div>
             </div>
 
             <form method="POST" action="{{ route('stock-adjustments.store') }}" class="space-y-6">
@@ -48,10 +55,10 @@
                         <select name="type" id="type" required
                                 class="w-full text-sm rounded-lg border-slate-300 focus:border-amber-500 focus:ring-amber-500 @error('type') border-red-500 @enderror">
                             <option value="ADJUSTMENT_IN" {{ old('type') === 'ADJUSTMENT_IN' ? 'selected' : '' }}>
-                                ➕ Tambah Stok (Fisik Lebih Banyak)
+                                Tambah Stok (Fisik Lebih Banyak)
                             </option>
                             <option value="ADJUSTMENT_OUT" {{ old('type') === 'ADJUSTMENT_OUT' ? 'selected' : '' }}>
-                                ➖ Kurangi Stok (Fisik Lebih Sedikit / Rusak)
+                                Kurangi Stok (Fisik Lebih Sedikit / Rusak)
                             </option>
                         </select>
                         @error('type')

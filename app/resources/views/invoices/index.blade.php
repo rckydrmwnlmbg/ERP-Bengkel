@@ -104,12 +104,12 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-xs whitespace-nowrap">
                                     @if($inv->source_type === 'work_order')
-                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                            🔧 Servis ({{ $inv->workOrder?->wo_number }})
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                            Servis ({{ $inv->workOrder?->wo_number }})
                                         </span>
                                     @else
-                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
-                                            🛒 Toko (Direct)
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                                            Toko (Direct)
                                         </span>
                                     @endif
                                 </td>

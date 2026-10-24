@@ -115,42 +115,42 @@
                                 <td class="py-3 px-4 whitespace-nowrap">
                                     @switch($m->type)
                                         @case('PURCHASE_IN')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                📦 Barang Masuk (Beli)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Barang Masuk (Beli)
                                             </span>
                                             @break
                                         @case('SERVICE_OUT')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">
-                                                🔧 Pemakaian Servis
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                Pemakaian Servis
                                             </span>
                                             @break
                                         @case('SERVICE_RETURN')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                                ↩️ Retur Servis
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                                Retur Servis
                                             </span>
                                             @break
                                         @case('SALE_OUT')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                                                🛒 Penjualan Toko
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                                                Penjualan Toko
                                             </span>
                                             @break
                                         @case('SALE_RETURN')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-100 text-cyan-800 border border-cyan-200">
-                                                ↩️ Retur Penjualan
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200">
+                                                Retur Penjualan
                                             </span>
                                             @break
                                         @case('ADJUSTMENT_IN')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-teal-100 text-teal-800 border border-teal-200">
-                                                ⚖️ Opname (+)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
+                                                Opname (+)
                                             </span>
                                             @break
                                         @case('ADJUSTMENT_OUT')
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                                ⚖️ Opname (-)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                Opname (-)
                                             </span>
                                             @break
                                         @default
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-800">
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                                                 {{ $m->type }}
                                             </span>
                                     @endswitch
